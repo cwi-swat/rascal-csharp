@@ -19,5 +19,5 @@ public map[Entity, list[tuple[str,Entity]]] CollectTypesAndProperties(Resource n
   domClasses = [t | t:entity([namespace("ICSharpCode"), namespace("NRefactory"), namespace("CSharp"), _]) <- nrefactory@types];
   nonAbstractClasses = [c | c <- domClasses, isEmpty((nrefactory@modifiers)[c] & {abstract()})];
   domProperties = {<entity(ids), p> | /entity([ids*,p:property(_,_,_)]) <- nrefactory@properties, /entity(ids) := domClasses};
-  return (c : [<p.name, p.getter> | p <- domProperties[c]] | c <- nonAbstractClasses);
+  return (c : [<p.name, p.getter> | p <- (domProperties[c] + domProperties[(nrefactory@extends)[c]])] | c <- nonAbstractClasses);
 }
