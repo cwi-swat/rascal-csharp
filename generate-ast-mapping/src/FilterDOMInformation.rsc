@@ -10,14 +10,16 @@ import IO;
 import Set;
 import Graph;
 
-public Entity domRoot = entity([namespace("ICSharpCode"), namespace("NRefactory"), namespace("CSharp"), namespace("DomNode")]);
-
 //  nrefactory = readCLRInfo(["../../../../../rascal-csharp/lib/ICSharpCode.NRefactory.dll"]);
 public map[Entity, list[tuple[str,Entity]]] CollectTypesAndProperties(Resource nrefactory)
 {
-
-  domClasses = [t | t:entity([namespace("ICSharpCode"), namespace("NRefactory"), namespace("CSharp"), _]) <- nrefactory@types];
-  nonAbstractClasses = [c | c <- domClasses, isEmpty((nrefactory@modifiers)[c] & {abstract()})];
-  domProperties = {<entity(ids), p> | /entity([ids*,p:property(_,_,_)]) <- nrefactory@properties, /entity(ids) := domClasses};
-  return (c : [<p.name, p.getter> | p <- (domProperties[c] + domProperties[(nrefactory@extends)[c]])] | c <- nonAbstractClasses);
+  set[Entity] domTypes = {t | t:entity([namespace("ICSharpCode"), namespace("NRefactory"), namespace("CSharp"), _]) <- nrefactory@types};
+  Entity domNode = head([e | e:entity([_*,class("DomNode")]) <- domTypes]);
+  EntityRel rExtends = (nrefactory@extends)*;
+  set[Entity] domClasses = {t | <t, domNode> <- rExtends};
+  rExtends = {r | r <- rExtends, <_,Object> !:= r, r[0] in domClasses};
+  set[Entity] nonAbstractClasses = {c | c <- domClasses, isEmpty((nrefactory@modifiers)[c] & {abstract()})};
+  map[Entity, Id] domProperties = (entity(ids): p | /entity([ids*,p:property(_,_,_,_)]) <- nrefactory@properties, /entity(ids) := domClasses);
+  return (c : [<p.name, p.propertyType> | p <- [domProperties[cl] | cl <- rExtends[c]]] | c <- nonAbstractClasses);
 }
+
