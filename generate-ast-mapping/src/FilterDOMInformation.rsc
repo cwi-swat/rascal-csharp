@@ -23,3 +23,14 @@ public map[Entity, set[tuple[str,Entity]]] CollectTypesAndProperties(Resource nr
 	return (c : {<p.name, p.propertyType> | p <- {domProperties[cl] | cl <- flattedExtends[c]}} | c <- nonAbstractClasses);
 }
 
+public void PrintResults() {
+	Resource nrefactory = readCLRInfo(["../../../../../rascal-csharp/lib/ICSharpCode.NRefactory.dll"]);
+	map[Entity, set[tuple[str,Entity]]] entityWithProperties = CollectTypesAndProperties(nrefactory);
+	for(ent <- entityWithProperties) {
+		println(readable(ent));
+		println("properties:");
+		for(p <- entityWithProperties[ent]) {
+			println("  <p[0]>:<readable(p[1])>");
+		}
+	}
+}
