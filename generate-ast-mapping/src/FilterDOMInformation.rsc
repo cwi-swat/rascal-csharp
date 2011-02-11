@@ -59,6 +59,29 @@ public void GenerateRascalDataFile() {
 		}
 		println(";");
 	}
+	set[Entity] extraProperties = {range(r) | r <- range(props)};
+	extraProperties = {p | p:entity([_*,class(_)]) <- extraProperties}
+		+ {p | p:entity([_*,enum(_,_)]) <- extraProperties}
+		+ {head(i.params) | entity([_*,i:interface("IEnumerable",_)]) <- extraProperties}
+		- astNodeAbstractImplementers - {astNode};
+	for (p <- extraProperties, /class("Boolean") !:= p, /class("String") !:= p, /class("Int32") !:= p, p != Object) {
+		println("data <generateDataName(p)> = ");
+		first = true;
+		if (class(_) := last(p.id)) {
+			for (p <- extendingAll[p], p in props) {
+				println("  <first? "" : "|"> <generateAlternativeFormName(p)>(<generateParams(props[p])>)");
+				first = false;
+			}
+		}
+		else {
+			for (ei <- last(p.id).items) {
+				println("  <first? "" : "|"> <generateAlternativeFormName(ei)>()");
+				first = false;
+			}
+		}
+		println(";");
+	}
+	
 }
 private bool hasOnlyNonAbstractSuperClasses(Resource nrefactory, Entity dst) {
 	if (dst == astNode)
@@ -75,7 +98,22 @@ private str generateAlternativeFormName(Entity ent) {
 }
 
 private str generateDataName(Entity ent) {
-	return last(ent.id).name;
+	Id cl = last(ent.id);
+	if (cl.name == "IEnumerable") {
+		return "list[<generateDataName(head(cl.params))>]";
+	}
+	else if (cl.name == "String") {
+		return "str";
+	}
+	else if (cl.name == "Int32") {
+		return "int";
+	}
+	else if (cl.name == "Boolean") {
+		return "bool";
+	}
+	else {
+		return cl.name;
+	}
 }
 
 private str generateParams(rel[str,Entity] params) {
