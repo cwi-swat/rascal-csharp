@@ -27,6 +27,27 @@ public map[Entity, rel[str,Entity]] CollectTypesAndProperties(Resource nrefactor
 	return (c : {<p.name, p.propertyType> | p <- domProperties[flattedExtends[c]]} | c <- nonAbstractClasses);
 }
 
+
+public void GenerateRascalDataFile() {
+	Resource nrefactory = readCLRInfo(["../../../../../rascal-csharp/lib/ICSharpCode.NRefactory.dll"]);
+	// retrieve DOM specific classes from library.
+	set[Entity] domTypes = {t | t:entity([namespace("ICSharpCode"), namespace("NRefactory"), namespace("CSharp"), _]) <- nrefactory@types};
+	Entity domNode = head([e | e:entity([_*,class("DomNode")]) <- domTypes]);
+	// all classes extending DomNode are the root of the AST
+	EntityRel flattedExtends = (nrefactory@extends)*; 
+	set[Entity] domClasses = {t | <t, domNode> <- flattedExtends};
+	set[Entity] nonAbstractClasses = {c | c <- domClasses, isEmpty((nrefactory@modifiers)[c] & {abstract()})};
+	
+	println("data DomNode = ");
+	bool first = true;
+	for (e <- nonAbstractClasses, <e, domNode> in nrefactory@extends) {
+		// now we have the classes ready to form the head of the AST
+		println("<first? "" : "|">  <last(e.id).name>()");
+		first = false;
+	}
+	println(";");
+}
+
 public void PrintResults() {
 	Resource nrefactory = readCLRInfo(["../../../../../rascal-csharp/lib/ICSharpCode.NRefactory.dll"]);
 	map[Entity, set[tuple[str,Entity]]] entityWithProperties = CollectTypesAndProperties(nrefactory);
