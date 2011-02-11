@@ -38,14 +38,14 @@ public void GenerateRascalDataFile() {
 	
 	println("data DomNode = ");
 	bool first = true;
-	for (e <- props, <e, domNode> in (nrefactory@extends)) {
+	for (e <- props, <e, domNode> in (nrefactory@extends) || hasOnlyNonAbstractSuperClasses(nrefactory, e)) {
 		// now we have the classes ready to form the head of the AST
 		println("  <first? "" : "|"> <generateAlternativeFormName(e)>()");
 		first = false;
 	}
 	// now let's add all the types which are abstract wrappers for actual types
 	EntityRel extending = invert(nrefactory@extends);
-	set[Entity] domNodeAbstractImplementers = {c | c <- extending[domNode], !isEmpty((nrefactory@modifiers)[c] & {abstract()})};
+	set[Entity] domNodeAbstractImplementers = {c | c <- extending[domNode], isAbstract(nrefactory, c)};
 	EntityRel extendingAll = extending*;
 	for (i <- domNodeAbstractImplementers) {
 		println("  | <generateAlternativeFormName(i)>(<generateDataName(i)> node)");
@@ -60,6 +60,16 @@ public void GenerateRascalDataFile() {
 		}
 		println(";");
 	}
+} // check CSharpTokenNode UsingDeclaration
+private bool hasOnlyNonAbstractSuperClasses(Resource nrefactory, Entity dst) {
+	if (dst == domNode)
+		return true;
+	return (!isAbstract(nrefactory, dst)) 
+		&& hasOnlyNonAbstractSuperClasses(nrefactory, getOneFrom((nrefactory@extends)[dst]));
+}
+
+private bool isAbstract(Resource nrefactory, Entity dst) {
+	return !isEmpty((nrefactory@modifiers)[dst] & {abstract()});
 }
 private str generateAlternativeFormName(Entity ent) {
 	return camelCase(last(ent.id).name);
