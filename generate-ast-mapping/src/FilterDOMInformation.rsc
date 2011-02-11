@@ -10,15 +10,18 @@ import IO;
 import Set;
 import Graph;
 import Relation;
+import String;
 
 import vis::Figure;
 import vis::Render; 
+
+public Entity domNode = entity([namespace("ICSharpCode"), namespace("NRefactory"), namespace("CSharp"), class("DomNode")]);
 
 //  nrefactory = readCLRInfo(["../../../../../rascal-csharp/lib/ICSharpCode.NRefactory.dll"]);
 public map[Entity, rel[str,Entity]] CollectTypesAndProperties(Resource nrefactory)
 {
 	set[Entity] domTypes = {t | t:entity([namespace("ICSharpCode"), namespace("NRefactory"), namespace("CSharp"), _]) <- nrefactory@types};
-	Entity domNode = head([e | e:entity([_*,class("DomNode")]) <- domTypes]);
+	//Entity domNode = head([e | e:entity([_*,class("DomNode")]) <- domTypes]);
 	EntityRel flattedExtends = (nrefactory@extends)*;
 	set[Entity] domClasses = {t | <t, domNode> <- flattedExtends};
 	flattedExtends = {r | r <- flattedExtends, <_,Object> !:= r, r[0] in domClasses};
@@ -30,22 +33,46 @@ public map[Entity, rel[str,Entity]] CollectTypesAndProperties(Resource nrefactor
 
 public void GenerateRascalDataFile() {
 	Resource nrefactory = readCLRInfo(["../../../../../rascal-csharp/lib/ICSharpCode.NRefactory.dll"]);
-	// retrieve DOM specific classes from library.
-	set[Entity] domTypes = {t | t:entity([namespace("ICSharpCode"), namespace("NRefactory"), namespace("CSharp"), _]) <- nrefactory@types};
-	Entity domNode = head([e | e:entity([_*,class("DomNode")]) <- domTypes]);
+	map[Entity, rel[str,Entity]] props = CollectTypesAndProperties(nrefactory);
 	// all classes extending DomNode are the root of the AST
-	EntityRel flattedExtends = (nrefactory@extends)*; 
-	set[Entity] domClasses = {t | <t, domNode> <- flattedExtends};
-	set[Entity] nonAbstractClasses = {c | c <- domClasses, isEmpty((nrefactory@modifiers)[c] & {abstract()})};
 	
 	println("data DomNode = ");
 	bool first = true;
-	for (e <- nonAbstractClasses, <e, domNode> in nrefactory@extends) {
+	for (e <- props, <e, domNode> in (nrefactory@extends)) {
 		// now we have the classes ready to form the head of the AST
-		println("<first? "" : "|">  <last(e.id).name>()");
+		println("  <first? "" : "|"> <generateAlternativeFormName(e)>()");
 		first = false;
 	}
+	// now let's add all the types which are abstract wrappers for actual types
+	EntityRel extending = invert(nrefactory@extends);
+	set[Entity] domNodeAbstractImplementers = {c | c <- extending[domNode], !isEmpty((nrefactory@modifiers)[c] & {abstract()})};
+	EntityRel extendingAll = extending*;
+	for (i <- domNodeAbstractImplementers) {
+		println("  | <generateAlternativeFormName(i)>(<generateDataName(i)> node)");
+	}
 	println(";");
+	for (i <- domNodeAbstractImplementers) {
+		println("data <generateDataName(i)> = ");
+		first = true;
+		for (p <- extendingAll[i], p in props) {
+			println("  <first? "" : "|"> <generateAlternativeFormName(p)>()");
+			first = false;
+		}
+		println(";");
+	}
+}
+private str generateAlternativeFormName(Entity ent) {
+	return camelCase(last(ent.id).name);
+}
+
+private str generateDataName(Entity ent) {
+	return last(ent.id).name;
+}
+
+
+private str camelCase(str input) {
+	int length = size(input);
+	return toLowerCase(substring(input, 0, 1)) + substring(input, 1, length); 
 }
 
 public void PrintResults() {
