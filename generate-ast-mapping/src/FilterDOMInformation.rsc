@@ -15,54 +15,53 @@ import String;
 import vis::Figure;
 import vis::Render; 
 
-public Entity domNode = entity([namespace("ICSharpCode"), namespace("NRefactory"), namespace("CSharp"), class("DomNode")]);
+public Entity astNode = entity([namespace("ICSharpCode"), namespace("NRefactory"), namespace("CSharp"), class("AstNode")]);
 
 //  nrefactory = readCLRInfo(["../../../../../rascal-csharp/lib/ICSharpCode.NRefactory.dll"]);
 public map[Entity, rel[str,Entity]] CollectTypesAndProperties(Resource nrefactory)
 {
-	set[Entity] domTypes = {t | t:entity([namespace("ICSharpCode"), namespace("NRefactory"), namespace("CSharp"), _]) <- nrefactory@types};
-	//Entity domNode = head([e | e:entity([_*,class("DomNode")]) <- domTypes]);
+	set[Entity] astTypes = {t | t:entity([namespace("ICSharpCode"), namespace("NRefactory"), namespace("CSharp"), _]) <- nrefactory@types};
 	EntityRel flattedExtends = (nrefactory@extends)*;
-	set[Entity] domClasses = {t | <t, domNode> <- flattedExtends, !startsWith(last(t.id).name,"Null")};
-	flattedExtends = {r | r <- flattedExtends, <_,Object> !:= r, r[0] in domClasses};
-	set[Entity] nonAbstractClasses = {c | c <- domClasses, isEmpty((nrefactory@modifiers)[c] & {abstract()})};
-	rel[Entity, Id] domProperties = {<entity(ids),p> | /entity([ids*,p:property(_,_,_,_)]) <- nrefactory@properties, /entity(ids) := domClasses};
-	return (c : {<p.name, p.propertyType> | p <- domProperties[flattedExtends[c]]} | c <- nonAbstractClasses);
+	set[Entity] astClasses = {t | <t, astNode> <- flattedExtends, !startsWith(last(t.id).name,"Null")};
+	flattedExtends = {r | r <- flattedExtends, <_,Object> !:= r, r[0] in astClasses};
+	set[Entity] nonAbstractClasses = {c | c <- astClasses, isEmpty((nrefactory@modifiers)[c] & {abstract()})};
+	rel[Entity, Id] astProperties = {<entity(ids),p> | /entity([ids*,p:property(_,_,_,_)]) <- nrefactory@properties, p.name != "IsNull", /class("CSharpTokenNode") !:= p.propertyType, /entity(ids) := astClasses};
+	return (c : {<p.name, p.propertyType> | p <- astProperties[flattedExtends[c] - {astNode}]} | c <- nonAbstractClasses);
 }
 
 
 public void GenerateRascalDataFile() {
 	Resource nrefactory = readCLRInfo(["../../../../../rascal-csharp/lib/ICSharpCode.NRefactory.dll"]);
 	map[Entity, rel[str,Entity]] props = CollectTypesAndProperties(nrefactory);
-	// all classes extending DomNode are the root of the AST
+	// all classes extending astNode are the root of the AST
 	
-	println("data DomNode = ");
+	println("data AstNode = ");
 	bool first = true;
-	for (e <- props, <e, domNode> in (nrefactory@extends) || hasOnlyNonAbstractSuperClasses(nrefactory, e)) {
+	for (e <- props, <e, astNode> in (nrefactory@extends) || hasOnlyNonAbstractSuperClasses(nrefactory, e)) {
 		// now we have the classes ready to form the head of the AST
-		println("  <first? "" : "|"> <generateAlternativeFormName(e)>()");
+		println("  <first? "" : "|"> <generateAlternativeFormName(e)>(<generateParams(props[e])>)");
 		first = false;
 	}
 	// now let's add all the types which are abstract wrappers for actual types
 	EntityRel extending = invert(nrefactory@extends);
-	set[Entity] domNodeAbstractImplementers = {c | c <- extending[domNode], isAbstract(nrefactory, c)};
+	set[Entity] astNodeAbstractImplementers = {c | c <- extending[astNode], isAbstract(nrefactory, c)};
 	EntityRel extendingAll = extending*;
-	for (i <- domNodeAbstractImplementers) {
+	for (i <- astNodeAbstractImplementers) {
 		println("  | <generateAlternativeFormName(i)>(<generateDataName(i)> node)");
 	}
 	println(";");
-	for (i <- domNodeAbstractImplementers) {
+	for (i <- astNodeAbstractImplementers) {
 		println("data <generateDataName(i)> = ");
 		first = true;
 		for (p <- extendingAll[i], p in props) {
-			println("  <first? "" : "|"> <generateAlternativeFormName(p)>()");
+			println("  <first? "" : "|"> <generateAlternativeFormName(p)>(<generateParams(props[p])>)");
 			first = false;
 		}
 		println(";");
 	}
 }
 private bool hasOnlyNonAbstractSuperClasses(Resource nrefactory, Entity dst) {
-	if (dst == domNode)
+	if (dst == astNode)
 		return true;
 	return (!isAbstract(nrefactory, dst)) 
 		&& hasOnlyNonAbstractSuperClasses(nrefactory, getOneFrom((nrefactory@extends)[dst]));
@@ -77,6 +76,16 @@ private str generateAlternativeFormName(Entity ent) {
 
 private str generateDataName(Entity ent) {
 	return last(ent.id).name;
+}
+
+private str generateParams(rel[str,Entity] params) {
+	str result = "";
+	bool first = true;
+	for (p <- params, /class("AstLocation") !:= p[1]) {
+		result += (first ? "" : ", ") + generateDataName(p[1]) + " " + camelCase(p[0]);
+		first = false;
+	}
+	return result;
 }
 
 
@@ -101,7 +110,7 @@ public void PrintResultsFiltered(Resource nrefactory) {
 	map[Entity, set[tuple[str,Entity]]] entityWithProperties = CollectTypesAndProperties(nrefactory);
 	for(ent <- entityWithProperties) {
 		bool first = true;
-		for(p <- entityWithProperties[ent], /class("CSharpTokenNode") !:= p[1], /class("DomNode") !:= p[1], /class("DomLocation") !:= p[1]) {
+		for(p <- entityWithProperties[ent], /class("CSharpTokenNode") !:= p[1], /class("AstNode") !:= p[1], /class("AstLocation") !:= p[1]) {
 			if (first) {
 				println(readable(ent));
 				println("properties:");
@@ -127,7 +136,7 @@ public void PrintPropertyHistogram(Resource nrefactory) {
 }
 //map[Entity, rel[str,Entity]] entityWithProperties = CollectTypesAndProperties(nrefactory);
 public void ShowRelations(map[Entity, rel[str,Entity]] entityWithProperties) {
-	entityWithProperties = ( e : {<st, ent> | <st, ent> <- entityWithProperties[e], /class("CSharpTokenNode") !:= ent, /class("DomLocation") !:= ent }
+	entityWithProperties = ( e : {<st, ent> | <st, ent> <- entityWithProperties[e], /class("CSharpTokenNode") !:= ent, /class("AstLocation") !:= ent }
 		| e <- entityWithProperties);
 	println("digraph G {");
 	/*for (e <- {domain(entityWithProperties) + { r<1> | r <- range(entityWithProperties)} }) {
