@@ -19,8 +19,8 @@ public map[Entity, set[tuple[str,Entity]]] CollectTypesAndProperties(Resource nr
 	set[Entity] domClasses = {t | <t, domNode> <- flattedExtends};
 	flattedExtends = {r | r <- flattedExtends, <_,Object> !:= r, r[0] in domClasses};
 	set[Entity] nonAbstractClasses = {c | c <- domClasses, isEmpty((nrefactory@modifiers)[c] & {abstract()})};
-	map[Entity, Id] domProperties = (entity(ids): p | /entity([ids*,p:property(_,_,_,_)]) <- nrefactory@properties, /entity(ids) := domClasses);
-	return (c : {<p.name, p.propertyType> | p <- {domProperties[cl] | cl <- flattedExtends[c]}} | c <- nonAbstractClasses);
+	rel[Entity, Id] domProperties = {<entity(ids),p> | /entity([ids*,p:property(_,_,_,_)]) <- nrefactory@properties, /entity(ids) := domClasses};
+	return (c : {<p.name, p.propertyType> | p <- domProperties[flattedExtends[c]]} | c <- nonAbstractClasses);
 }
 
 public void PrintResults() {
