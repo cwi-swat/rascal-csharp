@@ -23,7 +23,7 @@ public map[Entity, rel[str,Entity]] CollectTypesAndProperties(Resource nrefactor
 	set[Entity] domTypes = {t | t:entity([namespace("ICSharpCode"), namespace("NRefactory"), namespace("CSharp"), _]) <- nrefactory@types};
 	//Entity domNode = head([e | e:entity([_*,class("DomNode")]) <- domTypes]);
 	EntityRel flattedExtends = (nrefactory@extends)*;
-	set[Entity] domClasses = {t | <t, domNode> <- flattedExtends};
+	set[Entity] domClasses = {t | <t, domNode> <- flattedExtends, !startsWith(last(t.id).name,"Null")};
 	flattedExtends = {r | r <- flattedExtends, <_,Object> !:= r, r[0] in domClasses};
 	set[Entity] nonAbstractClasses = {c | c <- domClasses, isEmpty((nrefactory@modifiers)[c] & {abstract()})};
 	rel[Entity, Id] domProperties = {<entity(ids),p> | /entity([ids*,p:property(_,_,_,_)]) <- nrefactory@properties, /entity(ids) := domClasses};
@@ -60,7 +60,7 @@ public void GenerateRascalDataFile() {
 		}
 		println(";");
 	}
-} // check CSharpTokenNode UsingDeclaration
+}
 private bool hasOnlyNonAbstractSuperClasses(Resource nrefactory, Entity dst) {
 	if (dst == domNode)
 		return true;
