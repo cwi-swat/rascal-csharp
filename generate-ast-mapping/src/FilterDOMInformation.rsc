@@ -34,3 +34,32 @@ public void PrintResults() {
 		}
 	}
 }
+
+public void PrintResultsFiltered(Resource nrefactory) {
+	map[Entity, set[tuple[str,Entity]]] entityWithProperties = CollectTypesAndProperties(nrefactory);
+	for(ent <- entityWithProperties) {
+		bool first = true;
+		for(p <- entityWithProperties[ent], /class("CSharpTokenNode") !:= p[1], /class("DomNode") !:= p[1], /class("DomLocation") !:= p[1]) {
+			if (first) {
+				println(readable(ent));
+				println("properties:");
+				first = false;
+			
+			}
+			println("  <p[0]>:<readable(p[1])>");
+		}
+	}
+}
+
+public void PrintPropertyHistogram(Resource nrefactory) {
+	map[Entity, set[tuple[str,Entity]]] entityWithProperties = CollectTypesAndProperties(nrefactory);
+	map[Entity, int] result = ();
+	for(ent <- entityWithProperties) {
+		for(p <- entityWithProperties[ent]) {
+			result[p[1]] ? 0 += 1;
+		}
+	}
+	for (r <- result) {
+		println("<readable(r)> : <result[r]> (</enum(_,_) := r>)");
+	}
+}
