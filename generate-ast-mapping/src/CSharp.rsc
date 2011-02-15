@@ -11,7 +11,7 @@ data Id = namespace(str name)
         | interface(str name, list[Entity] params)
         | anonymousClass(int nr) // C# anonymous classes are only internal
         | displayClass(int nr) 
-        | enum(str name, list[Entity] items)
+        | enum(str name, list[Entity] items, bool flaggable)
         
         | method(str name, list[Entity] params, Entity returnType)
         | constr(list[Entity] params)
@@ -123,7 +123,8 @@ public str readable(Id id) {
 	switch (id) {
 		case anonymousClass(nr): return "\<\>__anonClass" + "<nr>";		
 		case displayClass(nr): return "\<\>c__displayClass" + "<nr>";
-		case constr(params): return "constructor(" + readable(params) + ")";		
+		case constr(params): return "constructor(" + readable(params) + ")";
+		case property(name, propertyType, setter, getter) : return name + " (<readable(propertyType)>)";		
 		case initializer: return "initializer";
 		case initializer(nr): return "initializer$" + "<nr>";		
 		case primitive(p): return getName(p);

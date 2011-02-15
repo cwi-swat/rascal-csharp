@@ -14,6 +14,97 @@ import String;
 
 public Entity astNode = entity([namespace("ICSharpCode"), namespace("NRefactory"), namespace("CSharp"), class("AstNode")]);
 
+data Ast = \data(str name, list[Alternative] alt);
+data Alternative = alternative(str name, list[Property] props, Entity underlying);
+data Property = single(str name, str \type, Id underlying)
+	| \list(str name, str \type, Id underlying);
+
+
+// nrefactory = readCLRInfo(["../../../../../rascal-csharp/lib/ICSharpCode.NRefactory.dll"]);
+public list[Ast] generateStructureFor(Resource nrefactory) {
+	EntityRel extending = invert(nrefactory@extends);
+	EntitySet astClasses = (extending+)[astNode];
+	astClasses -= {c | c <- astClasses, startsWith(last(c.id).name,"Null")}; // Remove null object pattern classes
+	PropertyRel properties = getPropertiesFor(astClasses, nrefactory);
+	EntitySet relatedTypes = {p.propertyType.name == "IEnumerable" ? head(p.propertyType.params) : p.propertyType
+		| p <- range(properties), !(p.propertyType in astClasses), !isPrimitive(p.PropertyType)};
+	PropertyRel relatedProperties = getPropertiesFor(relatedTypes, nrefactory);
+	
+	
+	EntityRel allSuperClasses = (nrefactory@extends)+;
+	EntitySet ignorePropertiesFrom = {astNode, Object};
+	list[Ast] result = [\data("AstNode", 
+		[alternative(getAlternativeName(c.name), generatePropertyList(c, properties, allSuperClasses, ignorePropertiesFrom), c)
+			| c <- astClasses, !(abstract() in (nrefactory@modifiers)[c + allSuperClasses[c]])]
+		+ // add the basic abstract classes
+		[alternative(getAlternativeName(c.name), [single("node", getDataName(c), c)], c) 
+			| c <- extending[astNode], abstract() in (nrefactory@modifiers)]
+		)];
+	return result += [\data(getDataName(last(td.id).name),
+		enum(_,_,_) := last(td.id) ?
+			[alternative(getAlternativeName(e.name), [], e) 
+				| e <- last(td.id).items]
+			: [alternative(getAlternativeName(t.name) 
+				, generatePropertyList(t, properties, allSuperClasses, ignorePropertiesFrom)
+				, t)
+				| t <- extending[td]])
+		|  td <- (relatedTypes + {c | c<- extending[astNode], abstract() in (nrefactory@modifiers)})];
+}
+
+bool comparePropIds(Id a, Id b) {
+	return a.name <= b.name;
+}
+
+list[Property] generatePropertyList(Entity c, PropertyRel props, EntityRel super, EntitySet ignore) {
+	list[Id] currentProps = sort(toList(props[supper[c] - ignore]), comparePropIds);
+	list[Property] result =[];
+	if (p:/property("Name",_,_,_) := currentProps) {
+		currentProps -= [p];	
+		result += [single("name", "str", p)];
+	}
+	return result + [last(p.propertyType.id).Name == "IEnumerable" 
+		? list(getPropertyName(p.name), getAlternativeName(head(p.propertyType.params)) ,head(p.propertyType.params))
+			: single(getPropertyName(p.name), getDataName(p.propertyType), p.propertyType)
+		| p <- currentProps];
+}
+
+
+str getDataName(str name) {
+	switch (name) {
+		case "String" : return "str";
+		case "Int32" : return "int";
+		case "Boolean" : return "bool";
+		default: return escapeKeywords(name);
+	}
+}
+
+str getAlternativeName(str name) {
+	return escapeKeywords(camelCase(name));
+}
+
+str escapeKeywords(str possibleKeyword) {
+	return possibleKeyword;
+}
+
+bool isPrimitive(Entity tp) {
+	switch (last(tp.id).name) {
+		case "String" : return true;
+		case "Int32" : return true;
+		case "Boolean" : return true;
+		default: return false;
+	}
+}
+alias PropertyRel = rel[Entity class, Id property];
+
+PropertyRel getPropertiesFor(set[Entity] classes, Resource nrefactory) {
+	return {<entity(t), p> | entity([t:_*, p]) <- nrefactory@properties, 
+			entity(t) in classes, isValidPropertyFor(p)};
+}
+
+bool isValidPropertyFor(Id prop){
+	return prop.name != "IsNull" && last(prop.propertyType.id).Name != "CSharpTokenNode";
+}
+
 public map[Entity, rel[str,Entity]] CollectTypesAndProperties(Resource nrefactory)
 {
 	set[Entity] astTypes = {t | t:entity([namespace("ICSharpCode"), namespace("NRefactory"), namespace("CSharp"), _]) <- nrefactory@types};
