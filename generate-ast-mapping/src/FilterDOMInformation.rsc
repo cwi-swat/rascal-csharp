@@ -116,8 +116,8 @@ bool isPrimitive(Entity tp) {
 alias PropertyRel = rel[Entity class, Id property];
 
 PropertyRel getPropertiesFor(set[Entity] classes, Resource nrefactory) {
-	return {<entity(e.id - [p]), p> | e:entity([_*, p]) <- nrefactory@properties, 
-			entity(e.id - [p]) in classes, isValidPropertyFor(p)};
+	return {<entity(c), p> | e:entity([c*, p]) <- nrefactory@properties, 
+			entity(c) in classes, isValidPropertyFor(p)};
 }
 
 bool isValidPropertyFor(Id prop){
