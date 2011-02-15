@@ -34,8 +34,8 @@ public list[Ast] generateStructureFor(Resource nrefactory) {
 	EntityRel allSuperClasses = (nrefactory@extends)+;
 	EntitySet ignorePropertiesFrom = {astNode, Object};
 	list[Ast] result = [\data("AstNode", 
-		[alternative(getAlternativeName(c.name), generatePropertyList(c, properties, allSuperClasses, ignorePropertiesFrom), c)
-			| c <- astClasses, !(abstract() in (nrefactory@modifiers)[c + allSuperClasses[c]])]
+		[alternative(getAlternativeName(getLastId(c).name), generatePropertyList(c, properties, allSuperClasses, ignorePropertiesFrom), c)
+			| c <- extending[astNode], c in astClasses, !(abstract() in (nrefactory@modifiers)[c])]
 		+ // add the basic abstract classes
 		[alternative(getAlternativeName(c.name), [single("node", getDataName(c), c)], c) 
 			| c <- extending[astNode], abstract() in (nrefactory@modifiers)]
@@ -60,7 +60,7 @@ bool comparePropIds(Id a, Id b) {
 }
 
 list[Property] generatePropertyList(Entity c, PropertyRel props, EntityRel super, EntitySet ignore) {
-	list[Id] currentProps = sort(toList(props[super[c] - ignore]), comparePropIds);
+	list[Id] currentProps = sort(toList(props[c + super[c] - ignore]), comparePropIds);
 	list[Property] result =[];
 	if (p:/property("Name",_,_,_) := currentProps) {
 		currentProps -= [p];	
