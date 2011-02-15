@@ -26,7 +26,7 @@ public list[Ast] generateStructureFor(Resource nrefactory) {
 	EntitySet astClasses = (extending+)[astNode];
 	astClasses -= {c | c <- astClasses, startsWith(last(c.id).name,"Null")}; // Remove null object pattern classes
 	PropertyRel properties = getPropertiesFor(astClasses, nrefactory);
-	EntitySet relatedTypes = {(getLastId(p.propertyType).name == "IEnumerable") ? head(getLastId(p.propertyType).params) : p.propertyType
+	EntitySet relatedTypes = {isCollection(p.propertyType) ? head(getLastId(p.propertyType).params) : p.propertyType
 		| p <- range(properties), !(p.propertyType in astClasses), !isPrimitive(p.propertyType)};
 	PropertyRel relatedProperties = getPropertiesFor(relatedTypes, nrefactory);
 	
@@ -37,8 +37,8 @@ public list[Ast] generateStructureFor(Resource nrefactory) {
 		[alternative(getAlternativeName(getLastId(c).name), generatePropertyList(c, properties, allSuperClasses, ignorePropertiesFrom), c)
 			| c <- extending[astNode], c in astClasses, !(abstract() in (nrefactory@modifiers)[c])]
 		+ // add the basic abstract classes
-		[alternative(getAlternativeName(c.name), [single("node", getDataName(c), c)], c) 
-			| c <- extending[astNode], abstract() in (nrefactory@modifiers)]
+		[alternative(getAlternativeName(getLastId(c).name), [single("node", getDataName(c), property("this", c, entity([]), entity([])))], c) 
+			| c <- extending[astNode], abstract() in (nrefactory@modifiers)[c]]
 		)];
 	return result += [\data(getDataName(last(td.id).name),
 		(enum(_,_,_) := last(td.id)) ?
@@ -50,7 +50,10 @@ public list[Ast] generateStructureFor(Resource nrefactory) {
 				| t <- extending[td]])
 		|  td <- (relatedTypes + {c | c<- extending[astNode], abstract() in (nrefactory@modifiers)} - ignorePropertiesFrom)];
 }
-
+bool isCollection(Entity tp) {
+	str name = getLastId(tp).name;
+	return (name == "IEnumerable") || (name == "Collection"); 
+}
 Id getLastId(Entity src) {
 	return last(src.id);
 }
@@ -66,19 +69,14 @@ list[Property] generatePropertyList(Entity c, PropertyRel props, EntityRel super
 		currentProps -= [p];	
 		result += [single("name", "str", head(p))];
 	}
-	return result + [(getLastId(p.propertyType).name == "IEnumerable") 
+	return result + [isCollection(p.propertyType) 
 		? \list(getPropertyName(p.name), getDataName(head(getLastId(p.propertyType).params)) , p)
-		:  (isFlaggableEnum(getLastId(p.propertyType)) 
+		:  ((enum(_,_, true) := getLastId(p.propertyType)) 
 			? \list(getPropertyName(p.name), getDataName(getLastId(p.propertyType)), p)
 			: single(getPropertyName(p.name), getDataName(getLastId(p.propertyType)), p))
 		| p <- currentProps];	
 }
 
-
-
-bool isFlaggableEnum(Id id) {
-	return enum(_,_, true) := id;  
-}
 
 str getDataName(Entity ent) {
 	return getDataName(getLastId(ent));
