@@ -1,4 +1,4 @@
-module FilterDOMInformation
+module CSharpNRefactory
 
 import CLRInfo;
 import CSharp;
