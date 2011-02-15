@@ -26,8 +26,8 @@ public list[Ast] generateStructureFor(Resource nrefactory) {
 	EntitySet astClasses = (extending+)[astNode];
 	astClasses -= {c | c <- astClasses, startsWith(last(c.id).name,"Null")}; // Remove null object pattern classes
 	PropertyRel properties = getPropertiesFor(astClasses, nrefactory);
-	EntitySet relatedTypes = {p.propertyType.name == "IEnumerable" ? head(p.propertyType.params) : p.propertyType
-		| p <- range(properties), !(p.propertyType in astClasses), !isPrimitive(p.PropertyType)};
+	EntitySet relatedTypes = {(getLastId(p.propertyType).name == "IEnumerable") ? head(getLastId(p.propertyType).params) : p.propertyType
+		| p <- range(properties), !(p.propertyType in astClasses), !isPrimitive(p.propertyType)};
 	PropertyRel relatedProperties = getPropertiesFor(relatedTypes, nrefactory);
 	
 	
@@ -41,14 +41,18 @@ public list[Ast] generateStructureFor(Resource nrefactory) {
 			| c <- extending[astNode], abstract() in (nrefactory@modifiers)]
 		)];
 	return result += [\data(getDataName(last(td.id).name),
-		enum(_,_,_) := last(td.id) ?
-			[alternative(getAlternativeName(e.name), [], e) 
+		(enum(_,_,_) := last(td.id)) ?
+			[alternative(getAlternativeName(getLastId(e).name), [], e) 
 				| e <- last(td.id).items]
-			: [alternative(getAlternativeName(t.name) 
+			: [alternative(getAlternativeName(getLastId(t).name) 
 				, generatePropertyList(t, properties, allSuperClasses, ignorePropertiesFrom)
 				, t)
 				| t <- extending[td]])
 		|  td <- (relatedTypes + {c | c<- extending[astNode], abstract() in (nrefactory@modifiers)})];
+}
+
+Id getLastId(Entity src) {
+	return last(src.id);
 }
 
 bool comparePropIds(Id a, Id b) {
@@ -56,19 +60,30 @@ bool comparePropIds(Id a, Id b) {
 }
 
 list[Property] generatePropertyList(Entity c, PropertyRel props, EntityRel super, EntitySet ignore) {
-	list[Id] currentProps = sort(toList(props[supper[c] - ignore]), comparePropIds);
+	list[Id] currentProps = sort(toList(props[super[c] - ignore]), comparePropIds);
 	list[Property] result =[];
 	if (p:/property("Name",_,_,_) := currentProps) {
 		currentProps -= [p];	
 		result += [single("name", "str", p)];
 	}
-	return result + [last(p.propertyType.id).Name == "IEnumerable" 
-		? list(getPropertyName(p.name), getAlternativeName(head(p.propertyType.params)) ,head(p.propertyType.params))
-			: single(getPropertyName(p.name), getDataName(p.propertyType), p.propertyType)
+	return result + [(getLastId(p.propertyType).name == "IEnumerable") 
+		? \list(getPropertyName(p.name), getDataName(head(getLastId(p.propertyType).params)) , p)
+		: isFlaggableEnum(getLastId(p.propertyType)) 
+			? \list(getPropertyName(p.name), getDataName(getLastId(p.propertyType)), p)
+			: single(getPropertyName(p.name), getDataName(getLastId(p.propertyType)), p)
 		| p <- currentProps];
 }
 
+bool isFlaggableEnum(Id id) {
+	return enum(_,_, true) := id;  
+}
 
+str getDataName(Entity ent) {
+	return getDataName(getLastId(ent));
+}
+str getDataName(Id id) {
+	return getDataName(id.name);
+}
 str getDataName(str name) {
 	switch (name) {
 		case "String" : return "str";
@@ -79,6 +94,10 @@ str getDataName(str name) {
 }
 
 str getAlternativeName(str name) {
+	return escapeKeywords(camelCase(name));
+}
+
+str getPropertyName(str name) {
 	return escapeKeywords(camelCase(name));
 }
 
@@ -97,12 +116,12 @@ bool isPrimitive(Entity tp) {
 alias PropertyRel = rel[Entity class, Id property];
 
 PropertyRel getPropertiesFor(set[Entity] classes, Resource nrefactory) {
-	return {<entity(t), p> | entity([t:_*, p]) <- nrefactory@properties, 
-			entity(t) in classes, isValidPropertyFor(p)};
+	return {<entity(e.id - [p]), p> | e:entity([_*, p]) <- nrefactory@properties, 
+			entity(e.id - [p]) in classes, isValidPropertyFor(p)};
 }
 
 bool isValidPropertyFor(Id prop){
-	return prop.name != "IsNull" && last(prop.propertyType.id).Name != "CSharpTokenNode";
+	return prop.name != "IsNull" && last(prop.propertyType.id).name != "CSharpTokenNode";
 }
 
 public map[Entity, rel[str,Entity]] CollectTypesAndProperties(Resource nrefactory)
