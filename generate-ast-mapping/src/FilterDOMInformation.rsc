@@ -48,7 +48,7 @@ public list[Ast] generateStructureFor(Resource nrefactory) {
 				, generatePropertyList(t, properties, allSuperClasses, ignorePropertiesFrom)
 				, t)
 				| t <- extending[td]])
-		|  td <- (relatedTypes + {c | c<- extending[astNode], abstract() in (nrefactory@modifiers)})];
+		|  td <- (relatedTypes + {c | c<- extending[astNode], abstract() in (nrefactory@modifiers)} - ignorePropertiesFrom)];
 }
 
 Id getLastId(Entity src) {
@@ -64,15 +64,17 @@ list[Property] generatePropertyList(Entity c, PropertyRel props, EntityRel super
 	list[Property] result =[];
 	if (p:/property("Name",_,_,_) := currentProps) {
 		currentProps -= [p];	
-		result += [single("name", "str", p)];
+		result += [single("name", "str", head(p))];
 	}
 	return result + [(getLastId(p.propertyType).name == "IEnumerable") 
 		? \list(getPropertyName(p.name), getDataName(head(getLastId(p.propertyType).params)) , p)
-		: isFlaggableEnum(getLastId(p.propertyType)) 
+		:  (isFlaggableEnum(getLastId(p.propertyType)) 
 			? \list(getPropertyName(p.name), getDataName(getLastId(p.propertyType)), p)
-			: single(getPropertyName(p.name), getDataName(getLastId(p.propertyType)), p)
-		| p <- currentProps];
+			: single(getPropertyName(p.name), getDataName(getLastId(p.propertyType)), p))
+		| p <- currentProps];	
 }
+
+
 
 bool isFlaggableEnum(Id id) {
 	return enum(_,_, true) := id;  
