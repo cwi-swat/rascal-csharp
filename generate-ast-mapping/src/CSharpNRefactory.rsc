@@ -121,7 +121,7 @@ PropertyRel getPropertiesFor(set[Entity] classes, Resource nrefactory) {
 }
 
 bool isValidPropertyFor(Id prop){
-	return prop.name != "IsNull" && last(prop.propertyType.id).name != "CSharpTokenNode";
+	return prop.name != "IsNull" && last(prop.propertyType.id).name != "CSharpTokenNode" && last(prop.propertyType.id).name != "NodeType" ;
 }
 
 public map[Entity, rel[str,Entity]] CollectTypesAndProperties(Resource nrefactory)
