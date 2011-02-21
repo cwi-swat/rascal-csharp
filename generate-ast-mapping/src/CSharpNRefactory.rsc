@@ -26,6 +26,7 @@ public list[Ast] generateStructureFor(Resource nrefactory) {
 	EntitySet astClasses = (extending+)[astNode];
 	astClasses -= {c | c <- astClasses, startsWith(last(c.id).name,"Null")}; // Remove null object pattern classes
 	EntitySet mainPublicAstClasses = {c | c <- extending[astNode], c in astClasses, !(abstract() in (nrefactory@modifiers)[c])};
+	mainPublicAstClasses +=  {(extending+)[c] | c <- mainPublicAstClasses, !(abstract() in (nrefactory@modifiers)[(extending+)[c]])};
 	PropertyRel properties = getPropertiesFor(astClasses, nrefactory);
 	EntitySet relatedTypes = {isCollection(p.propertyType) ? head(getLastId(p.propertyType).params) : p.propertyType
 		| p <- range(properties), !(p.propertyType in astClasses), !isPrimitive(p.propertyType)}
