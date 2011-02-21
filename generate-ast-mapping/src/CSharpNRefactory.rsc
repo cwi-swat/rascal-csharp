@@ -25,17 +25,18 @@ public list[Ast] generateStructureFor(Resource nrefactory) {
 	EntityRel extending = invert(nrefactory@extends);
 	EntitySet astClasses = (extending+)[astNode];
 	astClasses -= {c | c <- astClasses, startsWith(last(c.id).name,"Null")}; // Remove null object pattern classes
+	EntitySet mainPublicAstClasses = {c | c <- extending[astNode], c in astClasses, !(abstract() in (nrefactory@modifiers)[c])};
 	PropertyRel properties = getPropertiesFor(astClasses, nrefactory);
 	EntitySet relatedTypes = {isCollection(p.propertyType) ? head(getLastId(p.propertyType).params) : p.propertyType
-		| p <- range(properties), !(p.propertyType in astClasses), !isPrimitive(p.propertyType)};
+		| p <- range(properties), !(p.propertyType in astClasses), !isPrimitive(p.propertyType)}
+		- mainPublicAstClasses;
 	PropertyRel relatedProperties = getPropertiesFor(relatedTypes, nrefactory);
-	
 	
 	EntityRel allSuperClasses = (nrefactory@extends)+;
 	EntitySet ignorePropertiesFrom = {astNode, Object};
 	list[Ast] result = [\data("AstNode", 
 		[alternative(getAlternativeName(getLastId(c).name), generatePropertyList(c, properties, allSuperClasses, ignorePropertiesFrom), c)
-			| c <- extending[astNode], c in astClasses, !(abstract() in (nrefactory@modifiers)[c])]
+			| c <- mainPublicAstClasses]
 		+ // add the basic abstract classes
 		[alternative(getAlternativeName(getLastId(c).name), [single("node", getDataName(c), property("this", c, entity([]), entity([])))], c) 
 			| c <- extending[astNode], abstract() in (nrefactory@modifiers)[c]]
@@ -66,7 +67,7 @@ list[Property] generatePropertyList(Entity c, PropertyRel props, EntityRel super
 	list[Id] currentProps = sort(toList(props[c + super[c] - ignore]), comparePropIds);
 	list[Property] result =[];
 	if (p:/property("Name",_,_,_) := currentProps) {
-		currentProps -= [p];	
+		currentProps -= [head(p)];	
 		result += [single("name", "str", head(p))];
 	}
 	return result + [isCollection(p.propertyType) 
