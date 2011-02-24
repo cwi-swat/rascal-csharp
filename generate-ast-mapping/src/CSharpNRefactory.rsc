@@ -27,6 +27,7 @@ public list[Ast] generateStructureFor(Resource nrefactory) {
 	astClasses -= {c | c <- astClasses, startsWith(last(c.id).name,"Null")}; // Remove null object pattern classes
 	EntitySet mainPublicAstClasses = {c | c <- extending[astNode], c in astClasses, !(abstract() in (nrefactory@modifiers)[c]), !startsWith(last(c.id).name,"Null")};
 	mainPublicAstClasses +=  {(extending+)[c] | c <- mainPublicAstClasses, !(abstract() in (nrefactory@modifiers)[(extending+)[c]])};
+	mainPublicAstClasses -= {c | c <- mainPublicAstClasses, startsWith(last(c.id).name,"Null")}; // Remove null object pattern classes
 	PropertyRel properties = getPropertiesFor(astClasses, nrefactory);
 	EntitySet relatedTypes = {isCollection(p.propertyType) ? head(getLastId(p.propertyType).params) : p.propertyType
 		| p <- range(properties), !(p.propertyType in astClasses), !isPrimitive(p.propertyType), !startsWith(last(p.propertyType.id).name,"Null")}
@@ -47,20 +48,31 @@ public list[Ast] generateStructureFor(Resource nrefactory) {
 	{
 		Entity td = getOneFrom(relatedTypesLeft);
 		relatedTypesLeft -= {td};
-		result += [\data(getDataName(last(td.id).name), (enum(_,_,_) := last(td.id)) ?
-				[alternative(getAlternativeName(getLastId(e).name), [], e) 
-					| e <- last(td.id).items]
-				: [alternative(getAlternativeName(getLastId(t).name) 
-					, generatePropertyList(t, relatedProperties, allSuperClasses, ignorePropertiesFrom)
-					, t)
-					| t <- (extending[td] + {t2 | t2 <- (extending+)[td], !(abstract() in (nrefactory@modifiers)[allSuperClasses[t2]-allSuperClasses[td] - {td}])}), !(abstract() in (nrefactory@modifiers)[t]), !startsWith(last(t.id).name,"Null") ]
-				+ [alternative(getAlternativeName(getLastId(t).name), [single("node", getDataName(t), property("this", t, entity([]), entity([])))], t)
-					| t <- extending[td], (abstract() in (nrefactory@modifiers)[t]) ])];
-		relatedTypesLeft += {t | t <- extending[td], (abstract() in (nrefactory@modifiers)[t])};
+		list[Alternative] alts = [];
+		if (enum(_,_,_) := last(td.id)) {
+			alts = [alternative(getAlternativeName(getLastId(e).name), [], e) 
+					| e <- last(td.id).items];
+		} else {
+			alts = [alternative(getAlternativeName(getLastId(t).name) , generatePropertyList(t, relatedProperties, allSuperClasses, ignorePropertiesFrom), t)
+					| t <- getNonAbstractImplementors(nrefactory, extending, allSuperClasses, td), !(abstract() in (nrefactory@modifiers)[t]), !startsWith(last(t.id).name,"Null")];
+			// now lets add the abstract child Implementors
+			set[Entity] abstractImplementors = {t | t <- extending[td], (abstract() in (nrefactory@modifiers)[t])};
+			alts += [alternative(getAlternativeName(getLastId(t).name), [single("node", getDataName(t), property("this", t, entity([]), entity([])))], t)
+					| t <- abstractImplementors];
+			relatedTypesLeft += abstractImplementors;
+		}
+		result += [\data(getDataName(last(td.id).name), alts)];
+		
 	} while (!isEmpty(relatedTypesLeft)); 
 	
 	return result;
 }
+
+set[Entity] getNonAbstractImplementors(Resource nrefactory, EntityRel extending, EntityRel superClasses, Entity currentClass) {
+	return {t | t <- (extending+)[currentClass], 
+		!(abstract() in (nrefactory@modifiers)[superClasses[t]-superClasses[currentClass] - {currentClass}])};
+}
+
 bool isCollection(Entity tp) {
 	str name = getLastId(tp).name;
 	return (name == "IEnumerable") || (name == "Collection") || (name == "ICollection"); 
