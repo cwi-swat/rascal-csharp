@@ -75,7 +75,7 @@ set[Entity] getNonAbstractImplementors(Resource nrefactory, EntityRel extending,
 
 bool isCollection(Entity tp) {
 	str name = getLastId(tp).name;
-	return (name == "IEnumerable") || (name == "Collection") || (name == "ICollection"); 
+	return (name == "IEnumerable") || (name == "Collection") || (name == "ICollection") || (name == "AstNodeCollection"); 
 }
 Id getLastId(Entity src) {
 	return last(src.id);
