@@ -37,10 +37,10 @@ public list[Ast] generateStructureFor(Resource nrefactory) {
 	EntityRel allSuperClasses = (nrefactory@extends)+;
 	EntitySet ignorePropertiesFrom = {astNode, Object};
 	list[Ast] result = [\data("AstNode", 
-		[alternative(getAlternativeName(getLastId(c).name), generatePropertyList(c, properties, allSuperClasses, ignorePropertiesFrom), c)
+		[alternative(getAlternativeName(getLastId(c).name), generatePropertyList(c, nrefactory, properties, allSuperClasses, ignorePropertiesFrom), c)
 			| c <- mainPublicAstClasses]
 		+ // add the basic abstract classes
-		[alternative(getAlternativeName(getLastId(c).name), [single("node", getDataName(c), property("this", c, entity([]), entity([])))], c) 
+		[alternative(getAlternativeName(getLastId(c).name), [single("node", getDataName(c, nrefactory), property("this", c, entity([]), entity([])))], c) 
 			| c <- extending[astNode], abstract() in (nrefactory@modifiers)[c]]
 		)];
 	EntitySet relatedTypesLeft = (relatedTypes + {c | c<- extending[astNode], abstract() in (nrefactory@modifiers)} - ignorePropertiesFrom);
@@ -53,15 +53,15 @@ public list[Ast] generateStructureFor(Resource nrefactory) {
 			alts = [alternative(getAlternativeName(getLastId(e).name), [], e) 
 					| e <- last(td.id).items];
 		} else {
-			alts = [alternative(getAlternativeName(getLastId(t).name) , generatePropertyList(t, relatedProperties, allSuperClasses, ignorePropertiesFrom), t)
+			alts = [alternative(getAlternativeName(getLastId(t).name) , generatePropertyList(t, nrefactory, relatedProperties, allSuperClasses, ignorePropertiesFrom), t)
 					| t <- getNonAbstractImplementors(nrefactory, extending, allSuperClasses, td), !(abstract() in (nrefactory@modifiers)[t]), !startsWith(last(t.id).name,"Null")];
 			// now lets add the abstract child Implementors
 			set[Entity] abstractImplementors = {t | t <- extending[td], (abstract() in (nrefactory@modifiers)[t])};
-			alts += [alternative(getAlternativeName(getLastId(t).name), [single("node", getDataName(t), property("this", t, entity([]), entity([])))], t)
+			alts += [alternative(getAlternativeName(getLastId(t).name), [single("node", getDataName(t, nrefactory), property("this", t, entity([]), entity([])))], t)
 					| t <- abstractImplementors];
 			relatedTypesLeft += abstractImplementors;
 		}
-		result += [\data(getDataName(last(td.id).name), alts)];
+		result += [\data(getDataName(td, nrefactory), alts)];
 		
 	} while (!isEmpty(relatedTypesLeft)); 
 	
@@ -85,7 +85,7 @@ bool comparePropIds(Id a, Id b) {
 	return a.name <= b.name;
 }
 
-list[Property] generatePropertyList(Entity c, PropertyRel props, EntityRel super, EntitySet ignore) {
+list[Property] generatePropertyList(Entity c, Resource nrefactory, PropertyRel props, EntityRel super, EntitySet ignore) {
 	list[Id] currentProps = sort(toList(props[c + super[c] - ignore]), comparePropIds);
 	list[Property] result =[];
 	if (p:/property("Name",_,_,_) := currentProps) {
@@ -93,27 +93,34 @@ list[Property] generatePropertyList(Entity c, PropertyRel props, EntityRel super
 		result += [single("name", "str", head(p))];
 	}
 	return result + [isCollection(p.propertyType) 
-		? \list(getPropertyName(p.name), getDataName(head(getLastId(p.propertyType).params)) , p)
+		? \list(getPropertyName(p.name), getDataName(head(getLastId(p.propertyType).params), nrefactory) , p)
 		:  ((enum(_,_, true) := getLastId(p.propertyType)) 
-			? \list(getPropertyName(p.name), getDataName(getLastId(p.propertyType)), p)
-			: single(getPropertyName(p.name), getDataName(getLastId(p.propertyType)), p))
+			? \list(getPropertyName(p.name), getDataName(p.propertyType, nrefactory), p)
+			: single(getPropertyName(p.name), getDataName(p.propertyType, nrefactory), p))
 		| p <- currentProps];	
 }
 
 
-str getDataName(Entity ent) {
-	return getDataName(getLastId(ent));
-}
-str getDataName(Id id) {
-	return getDataName(id.name);
-}
-str getDataName(str name) {
-	switch (name) {
+str getDataName(Entity ent, Resource nrefactory) {
+	switch (getLastId(ent).name) {
 		case "String" : return "str";
 		case "Int32" : return "int";
 		case "Boolean" : return "bool";
-		default: return escapeKeywords(name);
+		default: ;
 	}
+	if (abstract() in (nrefactory@modifiers)[ent] || (enum(_,_,_) := getLastId(ent))) {
+		return escapeKeywords(getLastId(ent).name);
+	}
+	if (ent == astNode) {
+		return "AstNode";
+	}
+	if (ent == Object) {
+		return "Object??";
+	}
+	// it looks like we have an relation to an alternative, 
+	// sadly rascal does not support this yet, so we'll 
+	// have to recover the abstract class used as Data
+	return getDataName(getOneFrom((nrefactory@extends)[ent]), nrefactory);
 }
 
 str getAlternativeName(str name) {
