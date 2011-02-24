@@ -42,6 +42,25 @@ public list[Ast] generateStructureFor(Resource nrefactory) {
 		[alternative(getAlternativeName(getLastId(c).name), [single("node", getDataName(c), property("this", c, entity([]), entity([])))], c) 
 			| c <- extending[astNode], abstract() in (nrefactory@modifiers)[c]]
 		)];
+	EntitySet relatedTypesLeft = (relatedTypes + {c | c<- extending[astNode], abstract() in (nrefactory@modifiers)} - ignorePropertiesFrom);
+	do 
+	{
+		Entity td = getOneFrom(relatedTypesLeft);
+		relatedTypesLeft -= {td};
+		result += [\data(getDataName(last(td.id).name), (enum(_,_,_) := last(td.id)) ?
+				[alternative(getAlternativeName(getLastId(e).name), [], e) 
+					| e <- last(td.id).items]
+				: [alternative(getAlternativeName(getLastId(t).name) 
+					, generatePropertyList(t, properties, allSuperClasses, ignorePropertiesFrom)
+					, t)
+					| t <- extending[td], !(abstract() in (nrefactory@modifiers)[t]) ]
+				+ [alternative(getAlternativeName(getLastId(t).name), [single("node", getDataName(t), property("this", t, entity([]), entity([])))], t)
+					| t <- extending[td], (abstract() in (nrefactory@modifiers)[t]) ])];
+		relatedTypesLeft += {t | t <- extending[td], (abstract() in (nrefactory@modifiers)[t])};
+	} while (!isEmpty(relatedTypesLeft)); 
+	
+	return result;
+	/*
 	return result += [\data(getDataName(last(td.id).name),
 		(enum(_,_,_) := last(td.id)) ?
 			[alternative(getAlternativeName(getLastId(e).name), [], e) 
@@ -51,6 +70,7 @@ public list[Ast] generateStructureFor(Resource nrefactory) {
 				, t)
 				| t <- extending[td]])
 		|  td <- (relatedTypes + {c | c<- extending[astNode], abstract() in (nrefactory@modifiers)} - ignorePropertiesFrom)];
+	*/
 }
 bool isCollection(Entity tp) {
 	str name = getLastId(tp).name;
