@@ -25,13 +25,13 @@ public list[Ast] generateStructureFor(Resource nrefactory) {
 	EntityRel extending = invert(nrefactory@extends);
 	EntitySet astClasses = (extending+)[astNode];
 	astClasses -= {c | c <- astClasses, startsWith(last(c.id).name,"Null")}; // Remove null object pattern classes
-	EntitySet mainPublicAstClasses = {c | c <- extending[astNode], c in astClasses, !(abstract() in (nrefactory@modifiers)[c])};
+	EntitySet mainPublicAstClasses = {c | c <- extending[astNode], c in astClasses, !(abstract() in (nrefactory@modifiers)[c]), !startsWith(last(c.id).name,"Null")};
 	mainPublicAstClasses +=  {(extending+)[c] | c <- mainPublicAstClasses, !(abstract() in (nrefactory@modifiers)[(extending+)[c]])};
 	PropertyRel properties = getPropertiesFor(astClasses, nrefactory);
 	EntitySet relatedTypes = {isCollection(p.propertyType) ? head(getLastId(p.propertyType).params) : p.propertyType
-		| p <- range(properties), !(p.propertyType in astClasses), !isPrimitive(p.propertyType)}
+		| p <- range(properties), !(p.propertyType in astClasses), !isPrimitive(p.propertyType), !startsWith(last(p.propertyType.id).name,"Null")}
 		- mainPublicAstClasses;
-	PropertyRel relatedProperties = getPropertiesFor(relatedTypes, nrefactory);
+	PropertyRel relatedProperties = getPropertiesFor((extending+)[relatedTypes], nrefactory);
 	
 	EntityRel allSuperClasses = (nrefactory@extends)+;
 	EntitySet ignorePropertiesFrom = {astNode, Object};
@@ -51,9 +51,9 @@ public list[Ast] generateStructureFor(Resource nrefactory) {
 				[alternative(getAlternativeName(getLastId(e).name), [], e) 
 					| e <- last(td.id).items]
 				: [alternative(getAlternativeName(getLastId(t).name) 
-					, generatePropertyList(t, properties, allSuperClasses, ignorePropertiesFrom)
+					, generatePropertyList(t, relatedProperties, allSuperClasses, ignorePropertiesFrom)
 					, t)
-					| t <- (extending[td] + {t2 | t2 <- (extending+)[td], !(abstract() in (nrefactory@modifiers)[allSuperClasses[t2]-allSuperClasses[td] - {td}])}), !(abstract() in (nrefactory@modifiers)[t]) ]
+					| t <- (extending[td] + {t2 | t2 <- (extending+)[td], !(abstract() in (nrefactory@modifiers)[allSuperClasses[t2]-allSuperClasses[td] - {td}])}), !(abstract() in (nrefactory@modifiers)[t]), !startsWith(last(t.id).name,"Null") ]
 				+ [alternative(getAlternativeName(getLastId(t).name), [single("node", getDataName(t), property("this", t, entity([]), entity([])))], t)
 					| t <- extending[td], (abstract() in (nrefactory@modifiers)[t]) ])];
 		relatedTypesLeft += {t | t <- extending[td], (abstract() in (nrefactory@modifiers)[t])};
@@ -63,7 +63,7 @@ public list[Ast] generateStructureFor(Resource nrefactory) {
 }
 bool isCollection(Entity tp) {
 	str name = getLastId(tp).name;
-	return (name == "IEnumerable") || (name == "Collection"); 
+	return (name == "IEnumerable") || (name == "Collection") || (name == "ICollection"); 
 }
 Id getLastId(Entity src) {
 	return last(src.id);
@@ -132,7 +132,15 @@ PropertyRel getPropertiesFor(set[Entity] classes, Resource nrefactory) {
 }
 
 bool isValidPropertyFor(Id prop){
-	return prop.name != "IsNull" && last(prop.propertyType.id).name != "CSharpTokenNode" && last(prop.propertyType.id).name != "NodeType" ;
+	if (prop.name == "IsNull") return false;
+	if (array(_) := head(prop.propertyType.id)) return true;
+	switch (last(prop.propertyType.id).name) {
+		case "AstType": return false;
+		case "NodeType": return false;
+		case "AstLocation": return false;
+		case "CSharpTokenNode": return false;
+		default: return true;
+	}
 }
 
 
