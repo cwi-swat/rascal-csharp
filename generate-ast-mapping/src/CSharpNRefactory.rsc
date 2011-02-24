@@ -53,7 +53,7 @@ public list[Ast] generateStructureFor(Resource nrefactory) {
 				: [alternative(getAlternativeName(getLastId(t).name) 
 					, generatePropertyList(t, properties, allSuperClasses, ignorePropertiesFrom)
 					, t)
-					| t <- extending[td], !(abstract() in (nrefactory@modifiers)[t]) ]
+					| t <- (extending[td] + {t2 | t2 <- (extending+)[td], !(abstract() in (nrefactory@modifiers)[allSuperClasses[t2]-allSuperClasses[td] - {td}])}), !(abstract() in (nrefactory@modifiers)[t]) ]
 				+ [alternative(getAlternativeName(getLastId(t).name), [single("node", getDataName(t), property("this", t, entity([]), entity([])))], t)
 					| t <- extending[td], (abstract() in (nrefactory@modifiers)[t]) ])];
 		relatedTypesLeft += {t | t <- extending[td], (abstract() in (nrefactory@modifiers)[t])};
