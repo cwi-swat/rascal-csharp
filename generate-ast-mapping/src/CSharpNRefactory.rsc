@@ -47,10 +47,12 @@ public list[Ast] generateStructureFor(Resource nrefactory) {
 		relatedTypesLeft -= [td];
 		list[Alternative] alts = [];
 		if (enum(_,_,_) := last(td.id)) {
-			str enumPrefix = substring(getDataName(td, nrefactory),0,1);
+			str enumPrefix = "";
 			rel[Entity, str] names = {<e,  getAlternativeName(getLastId(e).name)> | e <- last(td.id).items };
-			alts = [alternative(((e[1] in enumAlternativesUsed) ? enumPrefix + "_" : "") + e[1], [], e[0]) 
-					| e <- names];
+			if (!isEmpty(range(names) & enumAlternativesUsed)){
+				enumPrefix = camelCase(getDataName(td, nrefactory));
+			}
+			alts = [alternative(enumPrefix + (size(enumPrefix) > 0 ? pascalCase(e[1]) : e[1]), [], e[0]) | e <- names];
 			enumAlternativesUsed += range(names);
 		} else {
 			rel[str, Id] propertiesUsed = {};
@@ -189,3 +191,9 @@ private str camelCase(str input) {
 	int length = size(input);
 	return toLowerCase(substring(input, 0, 1)) + substring(input, 1, length); 
 }
+
+private str pascalCase(str input) {
+	int length = size(input);
+	return toUpperCase(substring(input, 0, 1)) + substring(input, 1, length); 
+}
+
