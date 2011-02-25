@@ -129,8 +129,12 @@ str getDataName(Entity ent, Resource nrefactory) {
 		case "Boolean" : return "bool";
 		default: ;
 	}
-	if (abstract() in (nrefactory@modifiers)[ent] || (enum(_,_,_) := getLastId(ent))) {
-		return escapeKeywords(getLastId(ent).name);
+	if (abstract() in (nrefactory@modifiers)[ent]) {
+		return getLastId(ent).name;
+	}
+	if (enum(_,_,_) := getLastId(ent)) {
+		str result = getLastId(ent).name;
+		return endsWith(result, "Type") ? substring(result, 0, size(result) - 4) : result;
 	}
 	if (ent == astNode) {
 		return "AstNode";
