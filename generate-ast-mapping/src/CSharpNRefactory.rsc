@@ -53,7 +53,7 @@ public list[Ast] generateStructureFor(Resource nrefactory) {
 					| t <- getNonAbstractImplementors(nrefactory, extending, allSuperClasses, td), !(abstract() in (nrefactory@modifiers)[t]), !startsWith(last(t.id).name,"Null")];
 			// now lets add the abstract child Implementors
 			set[Entity] abstractImplementors = {t | t <- extending[td], (abstract() in (nrefactory@modifiers)[t]), !/namespace("PatternMatching") := t, !(t in ignorePropertiesFrom)};
-			alts += [alternative(getAlternativeName(getLastId(t).name), [single("node", getDataName(t, nrefactory), property("this", t, entity([]), entity([])))], t)
+			alts += [alternative(getAlternativeName(getLastId(t).name), [single("node" + getDataName(t, nrefactory), getDataName(t, nrefactory), property("this", t, entity([]), entity([])))], t)
 					| t <- abstractImplementors];
 			relatedTypesLeft = toList(abstractImplementors) + relatedTypesLeft;
 		}
@@ -119,6 +119,9 @@ str getDataName(Entity ent, Resource nrefactory) {
 	return getDataName(getOneFrom((nrefactory@extends)[ent]), nrefactory);
 }
 
+str getAlternativeName(Entity ent) {
+	return getAlternativeName(last(ent.id).name);
+}
 str getAlternativeName(str name) {
 	return escapeKeywords(camelCase(name));
 }
