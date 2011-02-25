@@ -39,6 +39,7 @@ str escapeKeyWord(str possible) {
 		case "public" : return "\\public";
 		case "true" : return "\\true";
 		case "false" : return "\\false";
+		case "type" : return "\\type";
 		case "return" : return "\\return";
 		default : return possible;
 	}

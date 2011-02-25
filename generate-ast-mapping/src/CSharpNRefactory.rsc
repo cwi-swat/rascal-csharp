@@ -39,6 +39,7 @@ public list[Ast] generateStructureFor(Resource nrefactory) {
 
 	list[Ast] result = [];
 	list[Entity] relatedTypesLeft = [astNode] + toList(relatedTypes); // + {c | c<- extending[astNode], abstract() in (nrefactory@modifiers)} - ignorePropertiesFrom);
+	set[str] enumAlternativesUsed = {};
 	do 
 	{
 		Entity td = head(relatedTypesLeft);
@@ -46,8 +47,11 @@ public list[Ast] generateStructureFor(Resource nrefactory) {
 		relatedTypesLeft -= [td];
 		list[Alternative] alts = [];
 		if (enum(_,_,_) := last(td.id)) {
-			alts = [alternative(getAlternativeName(getLastId(e).name), [], e) 
-					| e <- last(td.id).items];
+			str enumPrefix = substring(getDataName(td, nrefactory),0,1);
+			rel[Entity, str] names = {<e,  getAlternativeName(getLastId(e).name)> | e <- last(td.id).items };
+			alts = [alternative(((e[1] in enumAlternativesUsed) ? enumPrefix + "_" : "") + e[1], [], e[0]) 
+					| e <- names];
+			enumAlternativesUsed += range(names);
 		} else {
 			alts = [alternative(getAlternativeName(getLastId(t).name) , generatePropertyList(t, nrefactory, properties, allSuperClasses, ignorePropertiesFrom), t)
 					| t <- getNonAbstractImplementors(nrefactory, extending, allSuperClasses, td), !(abstract() in (nrefactory@modifiers)[t]), !startsWith(last(t.id).name,"Null")];
