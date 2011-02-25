@@ -53,8 +53,13 @@ public list[Ast] generateStructureFor(Resource nrefactory) {
 					| e <- names];
 			enumAlternativesUsed += range(names);
 		} else {
-			alts = [alternative(getAlternativeName(getLastId(t).name) , generatePropertyList(t, nrefactory, properties, allSuperClasses, ignorePropertiesFrom), t)
-					| t <- getNonAbstractImplementors(nrefactory, extending, allSuperClasses, td), !(abstract() in (nrefactory@modifiers)[t]), !startsWith(last(t.id).name,"Null")];
+			rel[str, Id] propertiesUsed = {};
+			for (t <- getNonAbstractImplementors(nrefactory, extending, allSuperClasses, td), !(abstract() in (nrefactory@modifiers)[t]), !startsWith(last(t.id).name,"Null")) {
+				// we need a loop for extra logic for duplicate property names without matching elements
+				alts += [alternative(getAlternativeName(getLastId(t).name) , 
+					generatePropertyList(t, nrefactory, properties, propertiesUsed, allSuperClasses, ignorePropertiesFrom), t)];
+				propertiesUsed += {<p.name, p.underlying> | p <- last(alts).props};
+			}
 			// now lets add the abstract child Implementors
 			set[Entity] abstractImplementors = {t | t <- extending[td], (abstract() in (nrefactory@modifiers)[t]), !/namespace("PatternMatching") := t, !(t in ignorePropertiesFrom)};
 			alts += [alternative(getAlternativeName(getLastId(t).name), [single("node" + getDataName(t, nrefactory), getDataName(t, nrefactory), property("this", t, entity([]), entity([])))], t)
@@ -85,19 +90,23 @@ bool comparePropIds(Id a, Id b) {
 	return a.name <= b.name;
 }
 
-list[Property] generatePropertyList(Entity c, Resource nrefactory, PropertyRel props, EntityRel super, EntitySet ignore) {
+list[Property] generatePropertyList(Entity c, Resource nrefactory, PropertyRel props, rel[str, Id] propsUsed, EntityRel super, EntitySet ignore) {
 	list[Id] currentProps = sort(toList(props[c + super[c] - ignore]), comparePropIds);
 	list[Property] result =[];
 	if (p:/property("Name",_,_,_) := currentProps) {
 		currentProps -= [head(p)];	
 		result += [single("name", "str", head(p))];
 	}
-	return result + [isCollection(p.propertyType) 
+	result += [isCollection(p.propertyType) 
 		? \list(getPropertyName(p.name), getDataName(head(getLastId(p.propertyType).params), nrefactory) , p)
 		:  ((enum(_,_, true) := getLastId(p.propertyType)) 
 			? \list(getPropertyName(p.name), getDataName(p.propertyType, nrefactory), p)
 			: single(getPropertyName(p.name), getDataName(p.propertyType, nrefactory), p))
-		| p <- currentProps];	
+		| p <- currentProps];
+	return [ (isEmpty(propsUsed[p.name]) ? p : ((getOneFrom(propsUsed[p.name]).propertyType == p.underlying.propertyType) ? p : 
+		((\list(_,_,_) := p) 
+			? \list(p.name + substring(p.\type, 0, 1), p.\type, p.underlying) 
+			: single(p.name + substring(p.\type, 0, 1), p.\type, p.underlying))))  | p <- result]; 	
 }
 
 
