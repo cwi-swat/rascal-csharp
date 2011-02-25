@@ -93,10 +93,20 @@ bool comparePropIds(Id a, Id b) {
 list[Property] generatePropertyList(Entity c, Resource nrefactory, PropertyRel props, rel[str, Id] propsUsed, EntityRel super, EntitySet ignore) {
 	list[Id] currentProps = sort(toList(props[c + super[c] - ignore]), comparePropIds);
 	list[Property] result =[];
-	if (p:/property("Name",_,_,_) := currentProps) {
-		currentProps -= [head(p)];	
-		result += [single("name", "str", head(p))];
-	}
+	// remove duplicate properties
+	int i = 1;
+	while( i < size(currentProps)) {
+		if (currentProps[i-1].name == currentProps[i].name) {
+			currentProps = delete(currentProps, i); 
+		}
+		else if (currentProps[i].name == "Name") {
+			result += [single("name", "str", currentProps[i])];
+			currentProps = delete(currentProps, i);
+		}
+		else {
+			i += 1;
+		}
+	} 
 	result += [isCollection(p.propertyType) 
 		? \list(getPropertyName(p.name), getDataName(head(getLastId(p.propertyType).params), nrefactory) , p)
 		:  ((enum(_,_, true) := getLastId(p.propertyType)) 
