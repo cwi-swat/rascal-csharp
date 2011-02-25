@@ -30,36 +30,32 @@ public list[Ast] generateStructureFor(Resource nrefactory) {
 	mainPublicAstClasses -= {c | c <- mainPublicAstClasses, startsWith(last(c.id).name,"Null")}; // Remove null object pattern classes
 	PropertyRel properties = getPropertiesFor(astClasses, nrefactory);
 	EntitySet relatedTypes = {isCollection(p.propertyType) ? head(getLastId(p.propertyType).params) : p.propertyType
-		| p <- range(properties), !(p.propertyType in astClasses), !isPrimitive(p.propertyType), !startsWith(last(p.propertyType.id).name,"Null")}
-		- mainPublicAstClasses;
-	PropertyRel relatedProperties = getPropertiesFor((extending+)[relatedTypes], nrefactory);
+		| p <- range(properties), !(p.propertyType in astClasses), !isPrimitive(p.propertyType), !startsWith(last(p.propertyType.id).name,"Null") }
+		- mainPublicAstClasses - {Object};
+	properties += getPropertiesFor((extending+)[relatedTypes], nrefactory);
 	
 	EntityRel allSuperClasses = (nrefactory@extends)+;
 	EntitySet ignorePropertiesFrom = {astNode, Object};
-	list[Ast] result = [\data("AstNode", 
-		[alternative(getAlternativeName(getLastId(c).name), generatePropertyList(c, nrefactory, properties, allSuperClasses, ignorePropertiesFrom), c)
-			| c <- mainPublicAstClasses]
-		+ // add the basic abstract classes
-		[alternative(getAlternativeName(getLastId(c).name), [single("node", getDataName(c, nrefactory), property("this", c, entity([]), entity([])))], c) 
-			| c <- extending[astNode], abstract() in (nrefactory@modifiers)[c]]
-		)];
-	EntitySet relatedTypesLeft = (relatedTypes + {c | c<- extending[astNode], abstract() in (nrefactory@modifiers)} - ignorePropertiesFrom);
+
+	list[Ast] result = [];
+	list[Entity] relatedTypesLeft = [astNode] + toList(relatedTypes); // + {c | c<- extending[astNode], abstract() in (nrefactory@modifiers)} - ignorePropertiesFrom);
 	do 
 	{
-		Entity td = getOneFrom(relatedTypesLeft);
-		relatedTypesLeft -= {td};
+		Entity td = head(relatedTypesLeft);
+		//println("r: <td>");
+		relatedTypesLeft -= [td];
 		list[Alternative] alts = [];
 		if (enum(_,_,_) := last(td.id)) {
 			alts = [alternative(getAlternativeName(getLastId(e).name), [], e) 
 					| e <- last(td.id).items];
 		} else {
-			alts = [alternative(getAlternativeName(getLastId(t).name) , generatePropertyList(t, nrefactory, relatedProperties, allSuperClasses, ignorePropertiesFrom), t)
+			alts = [alternative(getAlternativeName(getLastId(t).name) , generatePropertyList(t, nrefactory, properties, allSuperClasses, ignorePropertiesFrom), t)
 					| t <- getNonAbstractImplementors(nrefactory, extending, allSuperClasses, td), !(abstract() in (nrefactory@modifiers)[t]), !startsWith(last(t.id).name,"Null")];
 			// now lets add the abstract child Implementors
-			set[Entity] abstractImplementors = {t | t <- extending[td], (abstract() in (nrefactory@modifiers)[t])};
+			set[Entity] abstractImplementors = {t | t <- extending[td], (abstract() in (nrefactory@modifiers)[t]), !/namespace("PatternMatching") := t, !(t in ignorePropertiesFrom)};
 			alts += [alternative(getAlternativeName(getLastId(t).name), [single("node", getDataName(t, nrefactory), property("this", t, entity([]), entity([])))], t)
 					| t <- abstractImplementors];
-			relatedTypesLeft += abstractImplementors;
+			relatedTypesLeft = toList(abstractImplementors) + relatedTypesLeft;
 		}
 		result += [\data(getDataName(td, nrefactory), alts)];
 		
@@ -115,7 +111,7 @@ str getDataName(Entity ent, Resource nrefactory) {
 		return "AstNode";
 	}
 	if (ent == Object) {
-		return "Object??";
+		return "value";
 	}
 	// it looks like we have an relation to an alternative, 
 	// sadly rascal does not support this yet, so we'll 
