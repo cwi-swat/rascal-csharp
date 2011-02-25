@@ -4,7 +4,7 @@ import CSharpNRefactory;
 import List;
 
 public str GenerateFor(list[Ast] info) {
-	str result = "module CSharp\n\npublic alias CSharpFile=list[Ast];\n";
+	str result = "module CSharp\n\npublic alias CSharpFile=list[AstNode];\n";
 	for (h <- info) {
 		result += "data <h.name> = ";
 		bool first = true;
