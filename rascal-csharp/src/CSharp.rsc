@@ -1,4 +1,5 @@
-module TestResult
+module CSharp
+
 public alias CSharpFile=list[AstNode];
 data AstNode = comment(Comment commentType, str content, bool startsLine)
   |  namespaceDeclaration(str name, str fullName, list[AstNode] identifiers, list[AstNode] members)
@@ -17,7 +18,6 @@ data AstNode = comment(Comment commentType, str content, bool startsLine)
   |  identifier(str name)
   |  attributeSection(AttributeTarget attributeTarget, list[AstNode] attributesA)
   |  constructorInitializer(list[Expression] arguments, ConstructorInitializer constructorInitializerType)
-  |  compilationUnit()
   |  variableInitializer(str name, Expression initializer)
   |  arraySpecifier(int dimensions)
   |  caseLabel(Expression expression)
@@ -255,3 +255,4 @@ data AttributeTarget = attributeTargetField()
 data VarianceModifier = invariant()
   |  covariant()
   |  contravariant();
+
