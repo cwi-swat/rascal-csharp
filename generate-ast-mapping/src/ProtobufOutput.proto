@@ -1,0 +1,495 @@
+package Landman.Rascal.CSharp.Profobuf;
+
+option optimize_for = SPEED;
+message AstNode { 
+  enum AstNodeKind { 
+    comment = 0;
+    namespaceDeclaration = 1;
+    constraint = 2;
+    attribute = 3;
+    queryOrdering = 4;
+    cSharpModifierToken = 5;
+    variablePlaceholder = 6;
+    usingDeclaration = 7;
+    cSharpTokenNode = 8;
+    parameterDeclaration = 9;
+    switchSection = 10;
+    usingAliasDeclaration = 11;
+    typeParameterDeclaration = 12;
+    catchClause = 13;
+    identifier = 14;
+    attributeSection = 15;
+    constructorInitializer = 16;
+    compilationUnit = 17;
+    variableInitializer = 18;
+    arraySpecifier = 19;
+    caseLabel = 20;
+    statement = 21;
+    astType = 22;
+    attributedNode = 23;
+    expression = 24;
+    queryClause = 25;
+  }
+  required AstNodeKind Kind = 1;
+  optional Expression defaultExpression = 2;
+  repeated AstNode caseLabels = 3;
+  repeated Expression arguments = 4;
+  optional string name = 5;
+  optional string variableName = 6;
+  optional string fullName = 7;
+  optional string name = 8;
+  optional Statement body = 9;
+  optional string content = 10;
+  optional Comment commentType = 11;
+  repeated Expression arguments = 12;
+  optional Expression initializer = 13;
+  repeated AstNode attributesA = 14;
+  repeated Statement statements = 15;
+  optional AttributedNode nodeAttributedNode = 16;
+  optional string namespace = 17;
+  optional VarianceModifier variance = 18;
+  optional string name = 19;
+  optional Expression nodeExpression = 20;
+  optional ConstructorInitializer constructorInitializerType = 21;
+  optional Expression expression = 22;
+  repeated Modifiers modifier = 23;
+  optional bool startsLine = 24;
+  optional Expression expression = 25;
+  repeated AstNode attributes = 26;
+  optional Statement nodeStatement = 27;
+  optional ParameterModifier parameterModifier = 28;
+  optional QueryOrderingDirection direction = 29;
+  optional string typeParameter = 30;
+  optional string name = 31;
+  optional string name = 32;
+  optional QueryClause nodeQueryClause = 33;
+  repeated AstType baseTypes = 34;
+  optional AstType nodeAstType = 35;
+  optional int32 dimensions = 36;
+  repeated AstNode members = 37;
+  optional string alias = 38;
+  repeated AstNode identifiers = 39;
+  optional AttributeTarget attributeTarget = 40;
+  repeated Modifiers allModifiers = 41;
+} 
+message QueryClause { 
+  enum QueryClauseKind { 
+    queryContinuationClause = 0;
+    queryWhereClause = 1;
+    queryGroupClause = 2;
+    queryOrderClause = 3;
+    querySelectClause = 4;
+    queryLetClause = 5;
+    queryFromClause = 6;
+    queryJoinClause = 7;
+  }
+  required QueryClauseKind Kind = 1;
+  optional string identifier = 2;
+  optional Expression expression = 3;
+  optional Expression precedingQuery = 4;
+  optional Expression equalsExpression = 5;
+  optional Expression onExpression = 6;
+  optional string identifier = 7;
+  optional string identifier = 8;
+  optional Expression projection = 9;
+  optional Expression expression = 10;
+  optional string intoIdentifier = 11;
+  repeated AstNode orderings = 12;
+  optional bool isGroupJoin = 13;
+  optional Expression condition = 14;
+  optional Expression expression = 15;
+  optional string joinIdentifier = 16;
+  optional Expression key = 17;
+  optional Expression inExpression = 18;
+} 
+message Expression { 
+  enum ExpressionKind { 
+    lambdaExpression = 0;
+    conditionalExpression = 1;
+    binaryOperatorExpression = 2;
+    directionExpression = 3;
+    castExpression = 4;
+    indexerExpression = 5;
+    parenthesizedExpression = 6;
+    baseReferenceExpression = 7;
+    sizeOfExpression = 8;
+    arrayCreateExpression = 9;
+    unaryOperatorExpression = 10;
+    asExpression = 11;
+    typeReferenceExpression = 12;
+    typeOfExpression = 13;
+    defaultValueExpression = 14;
+    anonymousMethodExpression = 15;
+    uncheckedExpression = 16;
+    isExpression = 17;
+    identifierExpression = 18;
+    checkedExpression = 19;
+    primitiveExpression = 20;
+    expressionPlaceholder = 21;
+    objectCreateExpression = 22;
+    namedArgumentExpression = 23;
+    argListExpression = 24;
+    memberReferenceExpression = 25;
+    invocationExpression = 26;
+    pointerReferenceExpression = 27;
+    assignmentExpression = 28;
+    thisReferenceExpression = 29;
+    stackAllocExpression = 30;
+    arrayInitializerExpression = 31;
+    queryExpression = 32;
+  }
+  required ExpressionKind Kind = 1;
+  repeated Expression arguments = 2;
+  repeated Expression arguments = 3;
+  repeated AstType typeArguments = 4;
+  repeated Expression elements = 5;
+  optional Expression left = 6;
+  repeated QueryClause clauses = 7;
+  optional Expression target = 8;
+  optional Expression expression = 9;
+  optional Expression target = 10;
+  repeated Expression arguments = 11;
+  optional Expression right = 12;
+  optional Expression expression = 13;
+  optional Statement bodyS = 14;
+  repeated Expression arguments = 15;
+  repeated AstNode parameters = 16;
+  optional value value = 17;
+  optional Expression expression = 18;
+  optional string identifier = 19;
+  optional Expression expression = 20;
+  optional Expression right = 21;
+  optional Expression expression = 22;
+  optional Expression expression = 23;
+  optional Expression initializer = 24;
+  repeated AstType typeArguments = 25;
+  optional Expression trueExpression = 26;
+  repeated AstNode additionalArraySpecifiers = 27;
+  optional Expression target = 28;
+  optional AssignmentOperator operatorA = 29;
+  optional Expression left = 30;
+  optional AstNode body = 31;
+  optional Expression expression = 32;
+  optional bool hasParameterList = 33;
+  repeated AstNode parameters = 34;
+  optional Expression falseExpression = 35;
+  optional Expression condition = 36;
+  optional UnaryOperator operatorU = 37;
+  optional string identifier = 38;
+  optional string memberName = 39;
+  repeated AstType typeArguments = 40;
+  optional BinaryOperator operator = 41;
+  optional FieldDirection fieldDirection = 42;
+  optional bool isAccess = 43;
+  optional Expression countExpression = 44;
+  optional Expression expression = 45;
+  optional Expression initializer = 46;
+  optional Expression target = 47;
+  optional Expression expression = 48;
+  repeated Expression arguments = 49;
+  optional string memberName = 50;
+} 
+message AttributedNode { 
+  enum AttributedNodeKind { 
+    enumMemberDeclaration = 0;
+    accessor = 1;
+    delegateDeclaration = 2;
+    destructorDeclaration = 3;
+    typeDeclaration = 4;
+    constructorDeclaration = 5;
+    memberDeclaration = 6;
+  }
+  required AttributedNodeKind Kind = 1;
+  optional string name = 2;
+  repeated AstNode constraints = 3;
+  optional Statement body = 4;
+  optional MemberDeclaration nodeMemberDeclaration = 5;
+  repeated AstNode attributes = 6;
+  repeated AstNode constraints = 7;
+  optional string name = 8;
+  repeated AstNode parameters = 9;
+  repeated AstNode typeParameters = 10;
+  repeated AstNode modifierTokens = 11;
+  repeated AstNode parameters = 12;
+  optional AstNode initializerA = 13;
+  repeated AstNode typeParameters = 14;
+  optional Expression initializer = 15;
+  repeated AstType baseTypes = 16;
+  optional Statement body = 17;
+  optional string name = 18;
+  optional string name = 19;
+  repeated AttributedNode members = 20;
+  optional Statement body = 21;
+  optional Class classType = 22;
+  optional string name = 23;
+  repeated Modifiers modifiers = 24;
+} 
+message MemberDeclaration { 
+  enum MemberDeclarationKind { 
+    indexerDeclaration = 0;
+    methodDeclaration = 1;
+    operatorDeclaration = 2;
+    propertyDeclaration = 3;
+    customEventDeclaration = 4;
+    fieldDeclaration = 5;
+    eventDeclaration = 6;
+  }
+  required MemberDeclarationKind Kind = 1;
+  optional bool isExtensionMethod = 2;
+  optional string name = 3;
+  repeated AstNode attributes = 4;
+  optional Statement body = 5;
+  optional AttributedNode setter = 6;
+  repeated AstNode parameters = 7;
+  optional AttributedNode getter = 8;
+  repeated AstNode modifierTokens = 9;
+  repeated AstNode typeParameters = 10;
+  optional Statement body = 11;
+  optional AttributedNode removeAccessor = 12;
+  repeated AstNode parameters = 13;
+  repeated AstNode constraints = 14;
+  repeated AstNode variables = 15;
+  optional Operator operatorType = 16;
+  repeated AstNode parameters = 17;
+  repeated AstNode variables = 18;
+  repeated Modifiers modifiers = 19;
+  optional AttributedNode addAccessor = 20;
+} 
+message AstType { 
+  enum AstTypeKind { 
+    simpleType = 0;
+    composedType = 1;
+    typePlaceholder = 2;
+    memberType = 3;
+    primitiveType = 4;
+  }
+  required AstTypeKind Kind = 1;
+  optional bool hasNullableSpecifier = 2;
+  optional string memberName = 3;
+  optional int32 pointerRank = 4;
+  repeated AstType typeArguments = 5;
+  optional string identifier = 6;
+  optional bool isDoubleColon = 7;
+  optional string keyword = 8;
+  repeated AstType typeArguments = 9;
+  repeated AstNode arraySpecifiers = 10;
+} 
+message Statement { 
+  enum StatementKind { 
+    returnStatement = 0;
+    whileStatement = 1;
+    yieldBreakStatement = 2;
+    blockStatementPlaceholder = 3;
+    gotoCaseStatement = 4;
+    fixedStatement = 5;
+    labelStatement = 6;
+    switchStatement = 7;
+    ifElseStatement = 8;
+    expressionStatement = 9;
+    gotoDefaultStatement = 10;
+    variableDeclarationStatement = 11;
+    breakStatement = 12;
+    tryCatchStatement = 13;
+    gotoStatement = 14;
+    usingStatement = 15;
+    throwStatement = 16;
+    unsafeStatement = 17;
+    doWhileStatement = 18;
+    continueStatement = 19;
+    checkedStatement = 20;
+    statementPlaceholder = 21;
+    forStatement = 22;
+    foreachStatement = 23;
+    lockStatement = 24;
+    blockStatement = 25;
+    emptyStatement = 26;
+    yieldStatement = 27;
+    uncheckedStatement = 28;
+  }
+  required StatementKind Kind = 1;
+  repeated AstNode variables = 2;
+  optional Expression expression = 3;
+  optional Statement body = 4;
+  optional Expression expression = 5;
+  optional Statement embeddedStatement = 6;
+  optional Expression condition = 7;
+  optional Statement embeddedStatement = 8;
+  optional Statement embeddedStatement = 9;
+  optional Statement embeddedStatement = 10;
+  optional Expression expression = 11;
+  optional Expression labelExpression = 12;
+  repeated Modifiers modifiers = 13;
+  repeated AstNode switchSections = 14;
+  repeated Statement iterators = 15;
+  optional Expression expression = 16;
+  optional string variableName = 17;
+  optional Expression inExpression = 18;
+  optional Expression expression = 19;
+  optional Statement embeddedStatement = 20;
+  repeated AstNode catchClauses = 21;
+  repeated Statement statements = 22;
+  optional Statement trueStatement = 23;
+  optional AstNode resourceAcquisition = 24;
+  optional Expression condition = 25;
+  optional Statement embeddedStatement = 26;
+  optional Statement tryBlock = 27;
+  optional Statement body = 28;
+  repeated AstNode variables = 29;
+  optional string label = 30;
+  optional Expression expression = 31;
+  optional Expression condition = 32;
+  optional string label = 33;
+  repeated Statement initializers = 34;
+  optional Statement finallyBlock = 35;
+  optional Expression condition = 36;
+  optional Statement body = 37;
+  optional Statement falseStatement = 38;
+  optional Statement embeddedStatement = 39;
+} 
+enum ConstructorInitializer { 
+    this = 0;
+    base = 1;
+}
+enum ParameterModifier { 
+    parameterModifierThis = 0;
+    parameterModifierNone = 1;
+    parameterModifierParams = 2;
+    parameterModifierRef = 3;
+    parameterModifierOut = 4;
+}
+enum QueryOrderingDirection { 
+    queryOrderingDirectionAscending = 0;
+    queryOrderingDirectionNone = 1;
+    queryOrderingDirectionDescending = 2;
+}
+enum UnaryOperator { 
+    bitNot = 0;
+    dereference = 1;
+    not = 2;
+    plus = 3;
+    decrement = 4;
+    minus = 5;
+    postIncrement = 6;
+    postDecrement = 7;
+    addressOf = 8;
+    increment = 9;
+}
+enum FieldDirection { 
+    fieldDirectionNone = 0;
+    fieldDirectionRef = 1;
+    fieldDirectionOut = 2;
+}
+enum BinaryOperator { 
+    conditionalOr = 0;
+    divide = 1;
+    inEquality = 2;
+    conditionalAnd = 3;
+    bitwiseOr = 4;
+    bitwiseAnd = 5;
+    modulus = 6;
+    equality = 7;
+    lessThanOrEqual = 8;
+    lessThan = 9;
+    shiftLeft = 10;
+    greaterThan = 11;
+    add = 12;
+    exclusiveOr = 13;
+    shiftRight = 14;
+    multiply = 15;
+    any = 16;
+    nullCoalescing = 17;
+    greaterThanOrEqual = 18;
+    subtract = 19;
+}
+enum AssignmentOperator { 
+    assignmentOperatorShiftLeft = 0;
+    assignmentOperatorDivide = 1;
+    assignmentOperatorAssign = 2;
+    assignmentOperatorBitwiseOr = 3;
+    assignmentOperatorAdd = 4;
+    assignmentOperatorExclusiveOr = 5;
+    assignmentOperatorShiftRight = 6;
+    assignmentOperatorMultiply = 7;
+    assignmentOperatorAny = 8;
+    assignmentOperatorBitwiseAnd = 9;
+    assignmentOperatorModulus = 10;
+    assignmentOperatorSubtract = 11;
+}
+enum Class { 
+    delegate = 0;
+    interface = 1;
+    module = 2;
+    class = 3;
+    enum = 4;
+    struct = 5;
+}
+enum Modifiers { 
+    modifiersReadonly = 0;
+    modifiersVirtual = 1;
+    modifiersPartial = 2;
+    modifiersNew = 3;
+    modifiersConst = 4;
+    modifiersProtected = 5;
+    modifiersPublic = 6;
+    modifiersSealed = 7;
+    modifiersAbstract = 8;
+    modifiersExtern = 9;
+    modifiersNone = 10;
+    modifiersStatic = 11;
+    modifiersVisibilityMask = 12;
+    modifiersOverride = 13;
+    modifiersInternal = 14;
+    modifiersUnsafe = 15;
+    modifiersFixed = 16;
+    modifiersVolatile = 17;
+    modifiersPrivate = 18;
+}
+enum Comment { 
+    multiLine = 0;
+    singleLine = 1;
+    documentation = 2;
+}
+enum Operator { 
+    operatorImplicit = 0;
+    operatorTrue = 1;
+    operatorBitwiseOr = 2;
+    operatorDivision = 3;
+    operatorDecrement = 4;
+    operatorUnaryNegation = 5;
+    operatorLeftShift = 6;
+    operatorBitwiseAnd = 7;
+    operatorSubtraction = 8;
+    operatorRightShift = 9;
+    operatorModulus = 10;
+    operatorIncrement = 11;
+    operatorEquality = 12;
+    operatorInequality = 13;
+    operatorLessThanOrEqual = 14;
+    operatorLessThan = 15;
+    operatorLogicalNot = 16;
+    operatorGreaterThan = 17;
+    operatorUnaryPlus = 18;
+    operatorExclusiveOr = 19;
+    operatorExplicit = 20;
+    operatorMultiply = 21;
+    operatorFalse = 22;
+    operatorAddition = 23;
+    operatorGreaterThanOrEqual = 24;
+    operatorOnesComplement = 25;
+}
+enum AttributeTarget { 
+    attributeTargetField = 0;
+    attributeTargetNone = 1;
+    attributeTargetReturn = 2;
+    attributeTargetUnknown = 3;
+    attributeTargetType = 4;
+    attributeTargetModule = 5;
+    attributeTargetAssembly = 6;
+    attributeTargetMethod = 7;
+    attributeTargetParam = 8;
+}
+enum VarianceModifier { 
+    invariant = 0;
+    covariant = 1;
+    contravariant = 2;
+}
