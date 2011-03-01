@@ -3,7 +3,7 @@ module GenerateRascalFile
 import CSharpNRefactory;
 import List;
 
-public str GenerateFor(list[Ast] info) {
+public str generateRascal(list[Ast] info) {
 	str result = "module CSharp\n\npublic alias CSharpFile=list[AstNode];\n";
 	for (h <- info) {
 		result += "data <h.name> = ";
