@@ -40,40 +40,40 @@ message AstNode {
     k_queryClause = 25;
   }
   required AstNodeKind Kind = 1;
-  optional QueryOrderingDirection direction = 2;
-  optional Expression defaultExpression = 3;
-  repeated AstNode attributes = 4;
-  optional Expression nodeExpression = 5;
-  optional string fullName = 6;
-  optional string content = 7;
-  optional Statement nodeStatement = 8;
-  repeated AstNode members = 9;
-  optional VarianceModifier variance = 10;
-  optional string variableName = 11;
-  repeated AstNode caseLabels = 12;
-  optional Expression initializer = 13;
-  repeated AstNode attributesA = 14;
-  optional Expression expression = 15;
-  optional AttributedNode nodeAttributedNode = 16;
-  repeated Expression arguments = 17;
-  repeated Statement statements = 18;
-  optional Statement body = 19;
-  optional string namespace = 20;
-  optional AstType nodeAstType = 21;
-  optional Comment commentType = 22;
-  optional string alias = 23;
-  optional string typeParameter = 24;
-  optional ParameterModifier parameterModifier = 25;
-  repeated Modifiers modifier = 26;
-  optional bool startsLine = 27;
-  optional string name = 28;
-  repeated AstType baseTypes = 29;
-  optional int32 dimensions = 30;
-  optional AttributeTarget attributeTarget = 31;
-  repeated AstNode identifiers = 32;
-  optional ConstructorInitializer constructorInitializerType = 33;
-  repeated Modifiers allModifiers = 34;
-  optional QueryClause nodeQueryClause = 35;
+  optional QueryOrderingDirection p_direction = 2;
+  optional Expression p_defaultExpression = 3;
+  repeated AstNode p_attributes = 4;
+  optional Expression p_nodeExpression = 5;
+  optional string p_fullName = 6;
+  optional string p_content = 7;
+  optional Statement p_nodeStatement = 8;
+  repeated AstNode p_members = 9;
+  optional VarianceModifier p_variance = 10;
+  optional string p_variableName = 11;
+  repeated AstNode p_caseLabels = 12;
+  optional Expression p_initializer = 13;
+  repeated AstNode p_attributesA = 14;
+  optional Expression p_expression = 15;
+  optional AttributedNode p_nodeAttributedNode = 16;
+  repeated Expression p_arguments = 17;
+  repeated Statement p_statements = 18;
+  optional Statement p_body = 19;
+  optional string p_namespace = 20;
+  optional AstType p_nodeAstType = 21;
+  optional Comment p_commentType = 22;
+  optional string p_alias = 23;
+  optional string p_typeParameter = 24;
+  optional ParameterModifier p_parameterModifier = 25;
+  repeated Modifiers p_modifier = 26;
+  optional bool p_startsLine = 27;
+  optional string p_name = 28;
+  repeated AstType p_baseTypes = 29;
+  optional int32 p_dimensions = 30;
+  optional AttributeTarget p_attributeTarget = 31;
+  repeated AstNode p_identifiers = 32;
+  optional ConstructorInitializer p_constructorInitializerType = 33;
+  repeated Modifiers p_allModifiers = 34;
+  optional QueryClause p_nodeQueryClause = 35;
 } 
 message QueryClause { 
   enum QueryClauseKind { 
@@ -87,19 +87,19 @@ message QueryClause {
     k_queryJoinClause = 7;
   }
   required QueryClauseKind Kind = 1;
-  optional Expression expression = 2;
-  optional Expression condition = 3;
-  optional Expression inExpression = 4;
-  optional string identifier = 5;
-  optional string intoIdentifier = 6;
-  optional Expression key = 7;
-  optional Expression projection = 8;
-  optional bool isGroupJoin = 9;
-  repeated AstNode orderings = 10;
-  optional string joinIdentifier = 11;
-  optional Expression precedingQuery = 12;
-  optional Expression onExpression = 13;
-  optional Expression equalsExpression = 14;
+  optional Expression p_expression = 2;
+  optional Expression p_condition = 3;
+  optional Expression p_inExpression = 4;
+  optional string p_identifier = 5;
+  optional string p_intoIdentifier = 6;
+  optional Expression p_key = 7;
+  optional Expression p_projection = 8;
+  optional bool p_isGroupJoin = 9;
+  repeated AstNode p_orderings = 10;
+  optional string p_joinIdentifier = 11;
+  optional Expression p_precedingQuery = 12;
+  optional Expression p_onExpression = 13;
+  optional Expression p_equalsExpression = 14;
 } 
 message Expression { 
   enum ExpressionKind { 
@@ -138,32 +138,32 @@ message Expression {
     k_queryExpression = 32;
   }
   required ExpressionKind Kind = 1;
-  repeated Expression elements = 2;
-  optional Expression expression = 3;
-  optional string value = 4;
-  repeated Expression arguments = 5;
-  optional BinaryOperator operator = 6;
-  optional Expression condition = 7;
-  optional Expression falseExpression = 8;
-  optional Expression right = 9;
-  repeated QueryClause clauses = 10;
-  optional UnaryOperator operatorU = 11;
-  optional Expression target = 12;
-  repeated AstType typeArguments = 13;
-  optional AssignmentOperator operatorA = 14;
-  repeated AstNode additionalArraySpecifiers = 15;
-  optional AstNode body = 16;
-  optional string identifier = 17;
-  optional Statement bodyS = 18;
-  optional bool isAccess = 19;
-  optional Expression initializer = 20;
-  optional string memberName = 21;
-  optional FieldDirection fieldDirection = 22;
-  optional bool hasParameterList = 23;
-  repeated AstNode parameters = 24;
-  optional Expression trueExpression = 25;
-  optional Expression left = 26;
-  optional Expression countExpression = 27;
+  repeated Expression p_elements = 2;
+  optional Expression p_expression = 3;
+  optional string p_value = 4;
+  repeated Expression p_arguments = 5;
+  optional BinaryOperator p_operator = 6;
+  optional Expression p_condition = 7;
+  optional Expression p_falseExpression = 8;
+  optional Expression p_right = 9;
+  repeated QueryClause p_clauses = 10;
+  optional UnaryOperator p_operatorU = 11;
+  optional Expression p_target = 12;
+  repeated AstType p_typeArguments = 13;
+  optional AssignmentOperator p_operatorA = 14;
+  repeated AstNode p_additionalArraySpecifiers = 15;
+  optional AstNode p_body = 16;
+  optional string p_identifier = 17;
+  optional Statement p_bodyS = 18;
+  optional bool p_isAccess = 19;
+  optional Expression p_initializer = 20;
+  optional string p_memberName = 21;
+  optional FieldDirection p_fieldDirection = 22;
+  optional bool p_hasParameterList = 23;
+  repeated AstNode p_parameters = 24;
+  optional Expression p_trueExpression = 25;
+  optional Expression p_left = 26;
+  optional Expression p_countExpression = 27;
 } 
 message AttributedNode { 
   enum AttributedNodeKind { 
@@ -176,20 +176,20 @@ message AttributedNode {
     k_memberDeclaration = 6;
   }
   required AttributedNodeKind Kind = 1;
-  repeated AstNode constraints = 2;
-  repeated AstNode attributes = 3;
-  repeated AstNode typeParameters = 4;
-  optional Class classType = 5;
-  optional string name = 6;
-  optional Statement body = 7;
-  repeated AttributedNode members = 8;
-  repeated AstNode modifierTokens = 9;
-  optional AstNode initializerA = 10;
-  repeated AstType baseTypes = 11;
-  repeated Modifiers modifiers = 12;
-  optional Expression initializer = 13;
-  repeated AstNode parameters = 14;
-  optional MemberDeclaration nodeMemberDeclaration = 15;
+  repeated AstNode p_constraints = 2;
+  repeated AstNode p_attributes = 3;
+  repeated AstNode p_typeParameters = 4;
+  optional Class p_classType = 5;
+  optional string p_name = 6;
+  optional Statement p_body = 7;
+  repeated AttributedNode p_members = 8;
+  repeated AstNode p_modifierTokens = 9;
+  optional AstNode p_initializerA = 10;
+  repeated AstType p_baseTypes = 11;
+  repeated Modifiers p_modifiers = 12;
+  optional Expression p_initializer = 13;
+  repeated AstNode p_parameters = 14;
+  optional MemberDeclaration p_nodeMemberDeclaration = 15;
 } 
 message MemberDeclaration { 
   enum MemberDeclarationKind { 
@@ -202,21 +202,21 @@ message MemberDeclaration {
     k_eventDeclaration = 6;
   }
   required MemberDeclarationKind Kind = 1;
-  repeated AstNode constraints = 2;
-  optional bool isExtensionMethod = 3;
-  repeated AstNode attributes = 4;
-  repeated AstNode variables = 5;
-  repeated AstNode typeParameters = 6;
-  optional AttributedNode setter = 7;
-  optional string name = 8;
-  optional Statement body = 9;
-  optional AttributedNode addAccessor = 10;
-  optional AttributedNode getter = 11;
-  optional AttributedNode removeAccessor = 12;
-  repeated AstNode modifierTokens = 13;
-  repeated Modifiers modifiers = 14;
-  optional Operator operatorType = 15;
-  repeated AstNode parameters = 16;
+  repeated AstNode p_constraints = 2;
+  optional bool p_isExtensionMethod = 3;
+  repeated AstNode p_attributes = 4;
+  repeated AstNode p_variables = 5;
+  repeated AstNode p_typeParameters = 6;
+  optional AttributedNode p_setter = 7;
+  optional string p_name = 8;
+  optional Statement p_body = 9;
+  optional AttributedNode p_addAccessor = 10;
+  optional AttributedNode p_getter = 11;
+  optional AttributedNode p_removeAccessor = 12;
+  repeated AstNode p_modifierTokens = 13;
+  repeated Modifiers p_modifiers = 14;
+  optional Operator p_operatorType = 15;
+  repeated AstNode p_parameters = 16;
 } 
 message AstType { 
   enum AstTypeKind { 
@@ -227,14 +227,14 @@ message AstType {
     k_primitiveType = 4;
   }
   required AstTypeKind Kind = 1;
-  optional bool isDoubleColon = 2;
-  optional bool hasNullableSpecifier = 3;
-  optional string keyword = 4;
-  optional string identifier = 5;
-  repeated AstNode arraySpecifiers = 6;
-  optional string memberName = 7;
-  optional int32 pointerRank = 8;
-  repeated AstType typeArguments = 9;
+  optional bool p_isDoubleColon = 2;
+  optional bool p_hasNullableSpecifier = 3;
+  optional string p_keyword = 4;
+  optional string p_identifier = 5;
+  repeated AstNode p_arraySpecifiers = 6;
+  optional string p_memberName = 7;
+  optional int32 p_pointerRank = 8;
+  repeated AstType p_typeArguments = 9;
 } 
 message Statement { 
   enum StatementKind { 
@@ -269,26 +269,26 @@ message Statement {
     k_uncheckedStatement = 28;
   }
   required StatementKind Kind = 1;
-  optional Expression expression = 2;
-  repeated AstNode variables = 3;
-  repeated Statement iterators = 4;
-  repeated Statement statements = 5;
-  optional Expression condition = 6;
-  optional Statement embeddedStatement = 7;
-  optional Statement body = 8;
-  optional Expression inExpression = 9;
-  optional Statement trueStatement = 10;
-  optional AstNode resourceAcquisition = 11;
-  optional Statement falseStatement = 12;
-  optional string label = 13;
-  optional Statement finallyBlock = 14;
-  optional Statement tryBlock = 15;
-  optional Expression labelExpression = 16;
-  repeated AstNode switchSections = 17;
-  repeated Statement initializers = 18;
-  optional string variableName = 19;
-  repeated Modifiers modifiers = 20;
-  repeated AstNode catchClauses = 21;
+  optional Expression p_expression = 2;
+  repeated AstNode p_variables = 3;
+  repeated Statement p_iterators = 4;
+  repeated Statement p_statements = 5;
+  optional Expression p_condition = 6;
+  optional Statement p_embeddedStatement = 7;
+  optional Statement p_body = 8;
+  optional Expression p_inExpression = 9;
+  optional Statement p_trueStatement = 10;
+  optional AstNode p_resourceAcquisition = 11;
+  optional Statement p_falseStatement = 12;
+  optional string p_label = 13;
+  optional Statement p_finallyBlock = 14;
+  optional Statement p_tryBlock = 15;
+  optional Expression p_labelExpression = 16;
+  repeated AstNode p_switchSections = 17;
+  repeated Statement p_initializers = 18;
+  optional string p_variableName = 19;
+  repeated Modifiers p_modifiers = 20;
+  repeated AstNode p_catchClauses = 21;
 } 
 enum ConstructorInitializer { 
     e_this = 0;
