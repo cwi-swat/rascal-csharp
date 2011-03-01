@@ -56,7 +56,7 @@ public list[Ast] generateStructureFor(Resource nrefactory) {
 			enumAlternativesUsed += range(names);
 		} else {
 			rel[str, Id] propertiesUsed = {};
-			for (t <- getNonAbstractImplementors(nrefactory, extending, allSuperClasses, td), !(abstract() in (nrefactory@modifiers)[t]), !startsWith(last(t.id).name,"Null")) {
+			for (t <- getNonAbstractImplementors(nrefactory, extending, allSuperClasses, td), !(abstract() in (nrefactory@modifiers)[t]), !startsWith(last(t.id).name,"Null"), last(t.id).name != "CompilationUnit" ) {
 				// we need a loop for extra logic for duplicate property names without matching elements
 				alts += [alternative(getAlternativeName(getLastId(t).name) , 
 					generatePropertyList(t, nrefactory, properties, propertiesUsed, allSuperClasses, ignorePropertiesFrom), t)];
