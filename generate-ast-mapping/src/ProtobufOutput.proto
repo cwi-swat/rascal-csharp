@@ -1,6 +1,12 @@
 package Landman.Rascal.CSharp.Profobuf;
 
 option optimize_for = SPEED;
+message CSharpParseRequest { 
+  required string Filename = 1;
+}
+message CSharpParseResult {
+  repeated AstNode Result = 1 
+;}
 message AstNode { 
   enum AstNodeKind { 
     k_comment = 0;

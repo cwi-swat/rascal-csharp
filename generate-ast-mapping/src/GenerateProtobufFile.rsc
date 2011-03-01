@@ -6,6 +6,12 @@ import CSharp;
 
 public str generateProtobuf(list[Ast] info) {
 	str result = "package Landman.Rascal.CSharp.Profobuf;\n\noption optimize_for = SPEED;\n";
+	result += "message CSharpParseRequest { \n" +
+		"  required string Filename = 1;\n" +
+		"}\n" +
+		"message CSharpParseResult {\n" +
+		"  repeated AstNode Result = 1 \n;" +
+		"}\n";
 	for (mes <- info, enumConstant(_,_) !:= last(head(mes.alt).underlying.id)) {
 		result += "message <mes.name> { \n";
 		int kindCounter = 0;
