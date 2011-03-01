@@ -11,15 +11,15 @@ public str generateProtobuf(list[Ast] info) {
 		int kindCounter = 0;
 		result += "  enum <mes.name>Kind { \n";
 		for (a <- mes.alt) {
-			result += "    <a.name> = <kindCounter>;\n";
+			result += "    k_<a.name> = <kindCounter>;\n";
 			kindCounter += 1;
 		} 
 		result += "  }\n";
 		result += "  required <mes.name>Kind Kind = 1;\n";
-		props = {<p.name, p.\type, p> | p <- {toSet(a.props) | a <- mes.alt}};
+		props = {<p.name, p.\type, single(_,_,_) := p> | p <- {toSet(a.props) | a <- mes.alt}};
 		int fieldCounter = 2;
 		for (p <- props) {
-			if (single(_,_,_) := p[2]) 
+			if (p[2]) 
 				result += "  optional ";
 			else 
 				result += "  repeated ";
@@ -46,6 +46,7 @@ str translateType(str rscType) {
 		case "str" : return "string";
 		case "int" : return "int32";
 		case "bool" : return "bool";
+		case "value": return "string"; // we cannot map value to something in Protobuf, so java will have to try to parse the string back to a primitive
 		default : return rscType;
 	}	
 }
