@@ -9,7 +9,7 @@ public str generateProtobuf(list[Ast] info, bool csharpVersion) {
 	if (csharpVersion) {
 		result += "import \"google/protobuf/csharp_options.proto\";\n";
 		result += "option (google.protobuf.csharp_file_options).namespace = \"Landman.Rascal.CSharp.Profobuf\";\n";
-		result += "option (google.protobuf.csharp_file_options).umbrella_classname = \"CSharoASTProtos\";\n";
+		result += "option (google.protobuf.csharp_file_options).umbrella_classname = \"CSharpASTProtos\";\n";
 	}
 	result += "message CSharpParseRequest { \n" +
 		"  required string Filename = 1;\n" +
@@ -43,7 +43,7 @@ public str generateProtobuf(list[Ast] info, bool csharpVersion) {
 		result += "enum <mes.name> { \n";
 		int enumCounter = 0;
 		for (a <- mes.alt) {
-			result += "    <a.name> = <enumCounter>;\n";
+			result += "    e_<a.name> = <enumCounter>;\n";
 			enumCounter += 1;
 		} 
 		result += "}\n";

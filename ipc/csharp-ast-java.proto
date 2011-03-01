@@ -288,149 +288,149 @@ message Statement {
   repeated AstNode catchClauses = 21;
 } 
 enum ConstructorInitializer { 
-    this = 0;
-    base = 1;
+    e_this = 0;
+    e_base = 1;
 }
 enum ParameterModifier { 
-    parameterModifierThis = 0;
-    parameterModifierNone = 1;
-    parameterModifierParams = 2;
-    parameterModifierRef = 3;
-    parameterModifierOut = 4;
+    e_parameterModifierThis = 0;
+    e_parameterModifierNone = 1;
+    e_parameterModifierParams = 2;
+    e_parameterModifierRef = 3;
+    e_parameterModifierOut = 4;
 }
 enum QueryOrderingDirection { 
-    queryOrderingDirectionAscending = 0;
-    queryOrderingDirectionNone = 1;
-    queryOrderingDirectionDescending = 2;
+    e_queryOrderingDirectionAscending = 0;
+    e_queryOrderingDirectionNone = 1;
+    e_queryOrderingDirectionDescending = 2;
 }
 enum UnaryOperator { 
-    bitNot = 0;
-    dereference = 1;
-    not = 2;
-    plus = 3;
-    decrement = 4;
-    minus = 5;
-    postIncrement = 6;
-    postDecrement = 7;
-    addressOf = 8;
-    increment = 9;
+    e_bitNot = 0;
+    e_dereference = 1;
+    e_not = 2;
+    e_plus = 3;
+    e_decrement = 4;
+    e_minus = 5;
+    e_postIncrement = 6;
+    e_postDecrement = 7;
+    e_addressOf = 8;
+    e_increment = 9;
 }
 enum FieldDirection { 
-    fieldDirectionNone = 0;
-    fieldDirectionRef = 1;
-    fieldDirectionOut = 2;
+    e_fieldDirectionNone = 0;
+    e_fieldDirectionRef = 1;
+    e_fieldDirectionOut = 2;
 }
 enum BinaryOperator { 
-    conditionalOr = 0;
-    divide = 1;
-    inEquality = 2;
-    conditionalAnd = 3;
-    bitwiseOr = 4;
-    bitwiseAnd = 5;
-    modulus = 6;
-    equality = 7;
-    lessThanOrEqual = 8;
-    lessThan = 9;
-    shiftLeft = 10;
-    greaterThan = 11;
-    add = 12;
-    exclusiveOr = 13;
-    shiftRight = 14;
-    multiply = 15;
-    any = 16;
-    nullCoalescing = 17;
-    greaterThanOrEqual = 18;
-    subtract = 19;
+    e_conditionalOr = 0;
+    e_divide = 1;
+    e_inEquality = 2;
+    e_conditionalAnd = 3;
+    e_bitwiseOr = 4;
+    e_bitwiseAnd = 5;
+    e_modulus = 6;
+    e_equality = 7;
+    e_lessThanOrEqual = 8;
+    e_lessThan = 9;
+    e_shiftLeft = 10;
+    e_greaterThan = 11;
+    e_add = 12;
+    e_exclusiveOr = 13;
+    e_shiftRight = 14;
+    e_multiply = 15;
+    e_any = 16;
+    e_nullCoalescing = 17;
+    e_greaterThanOrEqual = 18;
+    e_subtract = 19;
 }
 enum AssignmentOperator { 
-    assignmentOperatorShiftLeft = 0;
-    assignmentOperatorDivide = 1;
-    assignmentOperatorAssign = 2;
-    assignmentOperatorBitwiseOr = 3;
-    assignmentOperatorAdd = 4;
-    assignmentOperatorExclusiveOr = 5;
-    assignmentOperatorShiftRight = 6;
-    assignmentOperatorMultiply = 7;
-    assignmentOperatorAny = 8;
-    assignmentOperatorBitwiseAnd = 9;
-    assignmentOperatorModulus = 10;
-    assignmentOperatorSubtract = 11;
+    e_assignmentOperatorShiftLeft = 0;
+    e_assignmentOperatorDivide = 1;
+    e_assignmentOperatorAssign = 2;
+    e_assignmentOperatorBitwiseOr = 3;
+    e_assignmentOperatorAdd = 4;
+    e_assignmentOperatorExclusiveOr = 5;
+    e_assignmentOperatorShiftRight = 6;
+    e_assignmentOperatorMultiply = 7;
+    e_assignmentOperatorAny = 8;
+    e_assignmentOperatorBitwiseAnd = 9;
+    e_assignmentOperatorModulus = 10;
+    e_assignmentOperatorSubtract = 11;
 }
 enum Class { 
-    delegate = 0;
-    interface = 1;
-    module = 2;
-    class = 3;
-    enum = 4;
-    struct = 5;
+    e_delegate = 0;
+    e_interface = 1;
+    e_module = 2;
+    e_class = 3;
+    e_enum = 4;
+    e_struct = 5;
 }
 enum Modifiers { 
-    modifiersReadonly = 0;
-    modifiersVirtual = 1;
-    modifiersPartial = 2;
-    modifiersNew = 3;
-    modifiersConst = 4;
-    modifiersProtected = 5;
-    modifiersPublic = 6;
-    modifiersSealed = 7;
-    modifiersAbstract = 8;
-    modifiersExtern = 9;
-    modifiersNone = 10;
-    modifiersStatic = 11;
-    modifiersVisibilityMask = 12;
-    modifiersOverride = 13;
-    modifiersInternal = 14;
-    modifiersUnsafe = 15;
-    modifiersFixed = 16;
-    modifiersVolatile = 17;
-    modifiersPrivate = 18;
+    e_modifiersReadonly = 0;
+    e_modifiersVirtual = 1;
+    e_modifiersPartial = 2;
+    e_modifiersNew = 3;
+    e_modifiersConst = 4;
+    e_modifiersProtected = 5;
+    e_modifiersPublic = 6;
+    e_modifiersSealed = 7;
+    e_modifiersAbstract = 8;
+    e_modifiersExtern = 9;
+    e_modifiersNone = 10;
+    e_modifiersStatic = 11;
+    e_modifiersVisibilityMask = 12;
+    e_modifiersOverride = 13;
+    e_modifiersInternal = 14;
+    e_modifiersUnsafe = 15;
+    e_modifiersFixed = 16;
+    e_modifiersVolatile = 17;
+    e_modifiersPrivate = 18;
 }
 enum Comment { 
-    multiLine = 0;
-    singleLine = 1;
-    documentation = 2;
+    e_multiLine = 0;
+    e_singleLine = 1;
+    e_documentation = 2;
 }
 enum Operator { 
-    operatorImplicit = 0;
-    operatorTrue = 1;
-    operatorBitwiseOr = 2;
-    operatorDivision = 3;
-    operatorDecrement = 4;
-    operatorUnaryNegation = 5;
-    operatorLeftShift = 6;
-    operatorBitwiseAnd = 7;
-    operatorSubtraction = 8;
-    operatorRightShift = 9;
-    operatorModulus = 10;
-    operatorIncrement = 11;
-    operatorEquality = 12;
-    operatorInequality = 13;
-    operatorLessThanOrEqual = 14;
-    operatorLessThan = 15;
-    operatorLogicalNot = 16;
-    operatorGreaterThan = 17;
-    operatorUnaryPlus = 18;
-    operatorExclusiveOr = 19;
-    operatorExplicit = 20;
-    operatorMultiply = 21;
-    operatorFalse = 22;
-    operatorAddition = 23;
-    operatorGreaterThanOrEqual = 24;
-    operatorOnesComplement = 25;
+    e_operatorImplicit = 0;
+    e_operatorTrue = 1;
+    e_operatorBitwiseOr = 2;
+    e_operatorDivision = 3;
+    e_operatorDecrement = 4;
+    e_operatorUnaryNegation = 5;
+    e_operatorLeftShift = 6;
+    e_operatorBitwiseAnd = 7;
+    e_operatorSubtraction = 8;
+    e_operatorRightShift = 9;
+    e_operatorModulus = 10;
+    e_operatorIncrement = 11;
+    e_operatorEquality = 12;
+    e_operatorInequality = 13;
+    e_operatorLessThanOrEqual = 14;
+    e_operatorLessThan = 15;
+    e_operatorLogicalNot = 16;
+    e_operatorGreaterThan = 17;
+    e_operatorUnaryPlus = 18;
+    e_operatorExclusiveOr = 19;
+    e_operatorExplicit = 20;
+    e_operatorMultiply = 21;
+    e_operatorFalse = 22;
+    e_operatorAddition = 23;
+    e_operatorGreaterThanOrEqual = 24;
+    e_operatorOnesComplement = 25;
 }
 enum AttributeTarget { 
-    attributeTargetField = 0;
-    attributeTargetNone = 1;
-    attributeTargetReturn = 2;
-    attributeTargetUnknown = 3;
-    attributeTargetType = 4;
-    attributeTargetModule = 5;
-    attributeTargetAssembly = 6;
-    attributeTargetMethod = 7;
-    attributeTargetParam = 8;
+    e_attributeTargetField = 0;
+    e_attributeTargetNone = 1;
+    e_attributeTargetReturn = 2;
+    e_attributeTargetUnknown = 3;
+    e_attributeTargetType = 4;
+    e_attributeTargetModule = 5;
+    e_attributeTargetAssembly = 6;
+    e_attributeTargetMethod = 7;
+    e_attributeTargetParam = 8;
 }
 enum VarianceModifier { 
-    invariant = 0;
-    covariant = 1;
-    contravariant = 2;
+    e_invariant = 0;
+    e_covariant = 1;
+    e_contravariant = 2;
 }
