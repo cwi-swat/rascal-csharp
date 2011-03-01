@@ -4,8 +4,13 @@ import CSharpNRefactory;
 import List;
 import CSharp;
 
-public str generateProtobuf(list[Ast] info) {
+public str generateProtobuf(list[Ast] info, bool csharpVersion) {
 	str result = "package Landman.Rascal.CSharp.Profobuf;\n\noption optimize_for = SPEED;\n";
+	if (csharpVersion) {
+		result += "import \"google/protobuf/csharp_options.proto\";\n";
+		result += "option (google.protobuf.csharp_file_options).namespace = \"Landman.Rascal.CSharp.Profobuf\";\n";
+		result += "option (google.protobuf.csharp_file_options).umbrella_classname = \"CSharoASTProtos\";\n";
+	}
 	result += "message CSharpParseRequest { \n" +
 		"  required string Filename = 1;\n" +
 		"}\n" +
