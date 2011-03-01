@@ -5,6 +5,7 @@ import GenerateProtobufFile;
 import GenerateRascalFile;
 import dotNet;
 import IO;
+
 // writeFilesFor("/home/davy/Personal/rascal-projects/rascal-csharp", nrefactory);
 public void writeFilesFor(str projectRoot, Resource nrefactory) {
 	structure = generateStructureFor(nrefactory);

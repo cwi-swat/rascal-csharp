@@ -26,15 +26,14 @@ message AstNode {
     k_identifier = 14;
     k_attributeSection = 15;
     k_constructorInitializer = 16;
-    k_compilationUnit = 17;
-    k_variableInitializer = 18;
-    k_arraySpecifier = 19;
-    k_caseLabel = 20;
-    k_statement = 21;
-    k_astType = 22;
-    k_attributedNode = 23;
-    k_expression = 24;
-    k_queryClause = 25;
+    k_variableInitializer = 17;
+    k_arraySpecifier = 18;
+    k_caseLabel = 19;
+    k_statement = 20;
+    k_astType = 21;
+    k_attributedNode = 22;
+    k_expression = 23;
+    k_queryClause = 24;
   }
   required AstNodeKind Kind = 1;
   optional QueryOrderingDirection p_direction = 2;
