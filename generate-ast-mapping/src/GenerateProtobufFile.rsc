@@ -34,7 +34,7 @@ public str generateProtobuf(list[Ast] info, bool csharpVersion) {
 				result += "  optional ";
 			else 
 				result += "  repeated ";
-			result += "<translateType(p[1])> <p[0]> = <fieldCounter>;\n";
+			result += "<translateType(p[1])> p_<p[0]> = <fieldCounter>;\n";
 			fieldCounter += 1;
 		}
 		result += "} \n";
